@@ -1,0 +1,23 @@
+{
+  "name": "orangehrm-playwright-tests",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/OlexBulai/orangehrm-playwright-tests.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/OlexBulai/orangehrm-playwright-tests/issues"
+  },
+  "homepage": "https://github.com/OlexBulai/orangehrm-playwright-tests#readme",
+  "devDependencies": {
+    "@playwright/test": "^1.61.0",
+    "@types/node": "^25.9.3"
+  }
+}
