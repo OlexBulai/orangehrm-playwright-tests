@@ -38,10 +38,12 @@ export default class MyInfoPage {
     this.jobLink = page.getByRole('link', { name: 'Job' });
     this.salaryLink = page.getByRole('link', { name: 'Salary' });
     this.reportToLink = page.getByRole('link', { name: 'Report-to' });
-    this.qualificationsLink = page.getByRole('link', { name: 'Qualifications' });
+    this.qualificationsLink = page.getByRole('link', {
+      name: 'Qualifications',
+    });
     this.membershipLink = page.getByRole('link', { name: 'Membership' });
   }
-  
+
   async openMyInfo() {
     await this.myInfoLink.click();
   }
@@ -125,5 +127,95 @@ export default class MyInfoPage {
     await expect(
       this.page.locator(this.membershipTitle).getByText('Membership'),
     ).toBeVisible();
+  }
+
+  async updatePersonalDetails(
+    firstName: string,
+    middleName: string,
+    lastName: string,
+    employeeId: string,
+    otherId: string,
+    driverLicenseNumber: string,
+    licenseExpiryDate: string,
+
+    nationality: string,
+    maritalStatus: string,
+  ) {
+    const employeeIdInput = this.page
+      .getByText('Employee Id')
+      .locator('..')
+      .locator('..')
+      .locator('input');
+    const otherIdInput = this.page
+      .getByText('Other Id')
+      .locator('..')
+      .locator('..')
+      .locator('input');
+    const driverLicenseNumberInput = this.page
+      .getByText("Driver's License Number")
+      .locator('..')
+      .locator('..')
+      .locator('input');
+    const licenseExpiryDateInput = this.page
+      .locator('input[placeholder="yyyy-dd-mm"]')
+      .first();
+
+    const nationalitySelect = this.page
+      .getByText('Nationality')
+      .locator('..')
+      .locator('..')
+      .locator('.oxd-select-text');
+    const maritalStatusSelect = this.page
+      .getByText('Marital Status')
+      .locator('..')
+      .locator('..')
+      .locator('.oxd-select-text');
+    await this.page.locator('input[name="firstName"]').click();
+    await this.page.locator('input[name="firstName"]').press('Control+A');
+    await this.page.locator('input[name="firstName"]').fill(firstName);
+    await this.page.locator('input[name="middleName"]').click();
+    await this.page.locator('input[name="middleName"]').press('Control+A');
+    await this.page.locator('input[name="middleName"]').fill(middleName);
+    await this.page.locator('input[name="lastName"]').click();
+    await this.page.locator('input[name="lastName"]').press('Control+A');
+    await this.page.locator('input[name="lastName"]').fill(lastName);
+
+    await expect(this.page.locator('input[name="firstName"]')).toHaveValue(
+      firstName,
+    );
+    await expect(this.page.locator('input[name="middleName"]')).toHaveValue(
+      middleName,
+    );
+    await expect(this.page.locator('input[name="lastName"]')).toHaveValue(
+      lastName,
+    );
+
+    await this.fillInputWithValue(employeeIdInput, employeeId);
+    await this.fillInputWithValue(otherIdInput, otherId);
+    await this.fillInputWithValue(
+      driverLicenseNumberInput,
+      driverLicenseNumber,
+    );
+    await this.fillInputWithValue(licenseExpiryDateInput, licenseExpiryDate);
+
+    await this.selectDropdownOption(nationalitySelect, nationality);
+    await this.selectDropdownOption(maritalStatusSelect, maritalStatus);
+
+    await this.page.getByRole('button', { name: 'Save' }).first().click();
+    await expect(
+      this.page.locator('div').getByText('Successfully Updated'),
+    ).toBeVisible();
+  }
+  async fillInputWithValue(inputLocator: Locator, value: string) {
+    await inputLocator.click();
+    await inputLocator.press('Control+A');
+    await inputLocator.fill(value);
+  }
+  async selectDropdownOption(dropdownLocator: Locator, option: string) {
+    await dropdownLocator.click();
+
+    const optionLocator = this.page.getByRole('option', { name: option });
+    await expect(optionLocator).toBeVisible();
+    await optionLocator.click();
   }
 }
