@@ -1,10 +1,9 @@
 import { test, expect } from '@playwright/test';
 import LoginPage from '../src/pages/login-page';
 import MyInfoPage from '../src/pages/my-info-page';
+import { usernameLogin, passwordLogin, baseUrl } from '../env';
 
 test.describe('OrangeHRM auth tests', () => {
-  const usernameLogin = 'Admin';
-  const passwordLogin = 'admin123';
   const dashboardTitle = 'h6';
 
   test.beforeEach('Navigate to login page', async ({ page }) => {
@@ -30,7 +29,7 @@ test.describe('OrangeHRM auth tests', () => {
     await expect(page).toHaveURL(/viewPersonalDetails/);
     await myInfoPage.expectPersonalDetailsVisible();
   });
-  test('User can open Contact Details from My Info page', async ({ page }) => {
+  test('User can navigate through My Info tabs', async ({ page }) => {
     const loginPage = new LoginPage(page);
     const myInfoPage = new MyInfoPage(page);
     await loginPage.fillUsername(usernameLogin);
@@ -40,5 +39,29 @@ test.describe('OrangeHRM auth tests', () => {
     await myInfoPage.openContactDetails();
     await expect(page).toHaveURL(/contactDetails/);
     await myInfoPage.expectContactDetailsVisible();
+    await myInfoPage.openEmergencyContacts();
+    await expect(page).toHaveURL(/viewEmergencyContacts/);
+    await myInfoPage.expectEmergencyContactsVisible();
+    await myInfoPage.openDependents();
+    await expect(page).toHaveURL(/viewDependents/);
+    await myInfoPage.expectDependentsVisible();
+    await myInfoPage.openImmigration();
+    await expect(page).toHaveURL(/viewImmigration/);
+    await myInfoPage.expectImmigrationVisible();
+    await myInfoPage.openJob();
+    await expect(page).toHaveURL(/viewJob/);
+    await myInfoPage.expectJobVisible();
+    await myInfoPage.openSalary();
+    await expect(page).toHaveURL(/viewSalary/);
+    await myInfoPage.expectSalaryVisible();
+    await myInfoPage.openReportTo();
+    await expect(page).toHaveURL(/viewReportTo/);
+    await myInfoPage.expectReportToVisible();
+    await myInfoPage.openQualifications();
+    await expect(page).toHaveURL(/viewQualifications/);
+    await myInfoPage.expectQualificationsVisible();
+    await myInfoPage.openMembership();
+    await expect(page).toHaveURL(/viewMembership/);
+    await myInfoPage.expectMembershipVisible();
   });
 });

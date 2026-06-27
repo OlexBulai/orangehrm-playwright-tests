@@ -1,4 +1,5 @@
 import { Page } from '@playwright/test';
+import { baseUrl } from '../../env';
 
 export default class LoginPage {
   readonly usernameInput = 'input[name="username"]';
@@ -6,9 +7,7 @@ export default class LoginPage {
   readonly loginButton = 'button[type="submit"]';
   constructor(private page: Page) {}
   async open() {
-    await this.page.goto(
-      'https://opensource-demo.orangehrmlive.com/web/index.php/auth/login',
-    );
+    await this.page.goto(`${baseUrl}/auth/login`);
   }
 
   async fillUsername(username: string) {
