@@ -2,9 +2,21 @@ import { test, expect } from '@playwright/test';
 import LoginPage from '../src/pages/login-page';
 import MyInfoPage from '../src/pages/my-info-page';
 import { usernameLogin, passwordLogin, baseUrl } from '../env';
+import { faker } from '@faker-js/faker';
 
 test.describe('OrangeHRM auth tests', () => {
   const dashboardTitle = 'h6';
+  const firstName = faker.person.firstName();
+  const middleName = 'Test';
+  const lastName = faker.person.lastName();
+  const employeeId = faker.string.numeric(6);
+  const otherId = faker.string.numeric(6);
+  const driverLicenseNumber = faker.string.numeric(8);
+  const licenseExpiryDate = '2027-25-12';
+  // const ssnNumber = faker.string.numeric(9);
+  // const sinNumber = faker.string.numeric(9);
+  const nationality = 'American';
+  const maritalStatus = 'Single';
 
   test.beforeEach('Navigate to login page', async ({ page }) => {
     const loginPage = new LoginPage(page);
@@ -63,5 +75,27 @@ test.describe('OrangeHRM auth tests', () => {
     await myInfoPage.openMembership();
     await expect(page).toHaveURL(/viewMembership/);
     await myInfoPage.expectMembershipVisible();
+  });
+
+  test('User can update Personal Details in My Info', async ({ page }) => {
+    const loginPage = new LoginPage(page);
+    const myInfoPage = new MyInfoPage(page);
+    await loginPage.fillUsername(usernameLogin);
+    await loginPage.fillPassword(passwordLogin);
+    await loginPage.clickLoginButton();
+    await myInfoPage.openMyInfo();
+    await myInfoPage.updatePersonalDetails(
+      firstName,
+      middleName,
+      lastName,
+      employeeId,
+      otherId,
+      driverLicenseNumber,
+      licenseExpiryDate,
+      nationality,
+      maritalStatus,
+    );
+    await expect(page).toHaveURL(/viewPersonalDetails/);
+    await myInfoPage.expectPersonalDetailsVisible();
   });
 });
