@@ -53,5 +53,6 @@ test.describe('OrangeHRM PIM tests', () => {
     await pimPage.clickSearchButton();
 
     await expect(page.getByText(employeeId)).toBeVisible();
+    
   });
 });
