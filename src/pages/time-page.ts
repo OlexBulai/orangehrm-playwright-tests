@@ -45,4 +45,33 @@ export default class TimePage {
   get timesheetForText() {
     return this.page.getByText('Timesheet for');
   }
+  get resetButton() {
+    return this.page.getByRole('button', { name: 'Reset' });
+  }
+  get editButton() {
+    return this.page.getByRole('button', { name: 'Edit' });
+  }
+  async clickResetButton() {
+    await this.resetButton.click();
+  }
+  async clickEditButton() {
+    await this.editButton.click();
+  }
+
+  get cancelButton() {
+    return this.page.getByRole('button', { name: 'Cancel' });
+  }
+  async clickCancelButton() {
+    await this.cancelButton.click();
+  }
+
+  get timesheetPeriodValue() {
+    return this.page.locator('.oxd-date-input input').first();
+  }
+  async goToNextTimesheetPeriod() {
+    await this.page.locator('.orangehrm-timeperiod-icon.--next').click();
+  }
+  async goToPreviousTimesheetPeriod() {
+    await this.page.locator('.orangehrm-timeperiod-icon.--previous').click();
+  }
 }
