@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 import LoginPage from '../src/pages/login-page';
 import TimePage from '../src/pages/time-page';
 import { usernameLogin, passwordLogin } from '../env';
-import { Page } from '@playwright/test';
+
 
 test.describe('Time Page', () => {
   let timePage: TimePage;
