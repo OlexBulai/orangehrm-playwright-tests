@@ -32,9 +32,40 @@ test.describe('Time Page', () => {
 
   test('Admin can view employee timesheet by employee name', async () => {
     await timePage.open();
-    await timePage.fillEmployeeName('RUD RID RUB');
+    await timePage.fillEmployeeName('JoyToy  SmithSmith');
     await timePage.clickViewTimesheetButton();
 
     await expect(timePage.timesheetForText).toBeVisible();
+  });
+
+  test('Admin can open employee timesheet edit mode', async () => {
+    await timePage.open();
+    await timePage.fillEmployeeName('JoyToy  SmithSmith');
+    await timePage.clickViewTimesheetButton();
+
+    await timePage.clickEditButton();
+    await expect(timePage.resetButton).toBeVisible();
+  });
+
+  test('Admin can cancel employee timesheet editing', async () => {
+    await timePage.open();
+    await timePage.fillEmployeeName('JoyToy  SmithSmith');
+    await timePage.clickViewTimesheetButton();
+    await timePage.clickEditButton();
+    await timePage.clickCancelButton();
+    await expect(timePage.timesheetForText).toBeVisible();
+  });
+
+  test('Admin can navigate employee timesheet period', async () => {
+    await timePage.open();
+    await timePage.fillEmployeeName('JoyToy  SmithSmith');
+    await timePage.clickViewTimesheetButton();
+    await expect(timePage.timesheetForText).toBeVisible();
+
+    const currentPeriod = await timePage.timesheetPeriodValue.inputValue();
+
+    await timePage.goToNextTimesheetPeriod();
+
+    await expect(timePage.timesheetPeriodValue).not.toHaveValue(currentPeriod);
   });
 });
