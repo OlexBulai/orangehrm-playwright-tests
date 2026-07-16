@@ -1,4 +1,5 @@
 import { Page, Locator, expect } from '@playwright/test';
+import AttachmentsComponent from './components/attachments-component';
 
 export default class MyInfoPage {
   readonly page: Page;
@@ -12,7 +13,7 @@ export default class MyInfoPage {
   readonly reportToLink: Locator;
   readonly qualificationsLink: Locator;
   readonly membershipLink: Locator;
-  readonly confirmDeleteButton: Locator;
+  readonly attachments: AttachmentsComponent;
 
   readonly personalDetailsTitle = 'h6';
   readonly contactDetailsTitle = 'h6';
@@ -43,13 +44,25 @@ export default class MyInfoPage {
       name: 'Qualifications',
     });
     this.membershipLink = page.getByRole('link', { name: 'Membership' });
-    this.confirmDeleteButton = page.getByRole('button', {
-      name: 'Yes, Delete',
-    });
+    this.attachments = new AttachmentsComponent(page);
   }
 
   async openMyInfo() {
     await this.myInfoLink.click();
+    await expect(this.page).toHaveURL(
+      /viewPersonalDetails\/empNumber\/\d+/,
+    );
+  }
+  getEmployeeId(): string {
+    const employeeId = this.page.url().match(/empNumber\/(\d+)/)?.[1];
+
+    if (employeeId === undefined) {
+      throw new Error(
+        `Employee ID was not found in My Info URL: ${this.page.url()}`,
+      );
+    }
+
+    return employeeId;
   }
   async expectPersonalDetailsVisible() {
     await expect(
@@ -131,73 +144,6 @@ export default class MyInfoPage {
     await expect(
       this.page.locator(this.membershipTitle).getByText('Membership'),
     ).toBeVisible();
-  }
-
-  getAttachmentRow(fileName: string) {
-    return this.page
-      .getByRole('row')
-      .filter({
-        has: this.page.getByRole('cell', { name: fileName, exact: true }),
-      });
-  }
-
-  async expectAttachmentRowVisible(fileName: string) {
-    await expect(this.getAttachmentRow(fileName)).toBeVisible({
-      timeout: 15_000,
-    });
-  }
-
-  async clickDeleteAttachment(fileName: string) {
-    await this.getAttachmentRow(fileName)
-      .locator('button:has(i.bi-trash)')
-      .click();
-  }
-
-  async clickConfirmDeleteButton() {
-    await this.confirmDeleteButton.click();
-  }
-
-  async expectAttachmentRowHidden(fileName: string) {
-    await expect(this.getAttachmentRow(fileName)).toBeHidden({
-      timeout: 15_000,
-    });
-  }
-
-  async clickEditAttachment(fileName: string) {
-    await this.getAttachmentRow(fileName)
-      .locator('button:has(i.bi-pencil-fill)')
-      .click();
-  }
-
-  async replaceAttachmentFile(file: {
-    name: string;
-    type: string;
-    buffer: Buffer;
-  }) {
-    await this.page.locator('input[type="file"]').setInputFiles({
-      name: file.name,
-      mimeType: file.type,
-      buffer: file.buffer,
-    });
-  }
-
-  async clickSaveAttachmentChanges() {
-    await this.page.getByRole('button', { name: 'Save' }).last().click();
-  }
-
-  async clickDownloadAttachment(fileName: string) {
-    await this.getAttachmentRow(fileName)
-      .locator('button:has(i.bi-download)')
-      .click();
-  }
-
-  async expectAttachmentDescription(fileName: string, description: string) {
-    await expect(
-      this.getAttachmentRow(fileName).getByRole('cell', {
-        name: description,
-        exact: true,
-      }),
-    ).toBeVisible({ timeout: 15_000 });
   }
 
   async updatePersonalDetails(
