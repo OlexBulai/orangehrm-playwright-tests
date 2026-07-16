@@ -76,12 +76,21 @@ export const test = base.extend<MyInfoAttachmentsFixtures>({
       throw error;
     } finally {
       const cleanupErrors: unknown[] = [];
+      const existingUiFileNames: string[] = [];
 
       for (const fileName of uiFileNames) {
         try {
           if (await myInfoPage.attachments.attachmentExists(fileName)) {
-            await myInfoPage.attachments.deleteAttachment(fileName);
+            existingUiFileNames.push(fileName);
           }
+        } catch (error) {
+          cleanupErrors.push(error);
+        }
+      }
+
+      for (const fileName of existingUiFileNames) {
+        try {
+          await myInfoPage.attachments.deleteAttachment(fileName);
         } catch (error) {
           cleanupErrors.push(error);
         }

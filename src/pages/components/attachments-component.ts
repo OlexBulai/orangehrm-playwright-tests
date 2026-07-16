@@ -82,7 +82,20 @@ export default class AttachmentsComponent {
     await this.getAttachmentRow(fileName)
       .locator('button:has(i.bi-trash)')
       .click();
+
+    const deleteResponsePromise = this.page.waitForResponse((response) => {
+      return (
+        response.request().method() === 'DELETE' &&
+        /\/api\/v2\/pim\/employees\/\d+\/screen\/personal\/attachments$/.test(
+          new URL(response.url()).pathname,
+        )
+      );
+    });
+
     await this.confirmDeleteButton.click();
+
+    const deleteResponse = await deleteResponsePromise;
+    expect(deleteResponse.status()).toBe(200);
     await this.expectAttachmentHidden(fileName);
   }
 
