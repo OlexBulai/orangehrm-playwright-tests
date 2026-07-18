@@ -1,6 +1,7 @@
 import { Download, expect, Page } from '@playwright/test';
 import { randomUUID } from 'crypto';
 import { promises as fs } from 'fs';
+import { AttachmentData } from '../../src/types/attachment';
 
 type CreateAttachmentFileOptions = {
   prefix: string;
@@ -15,12 +16,7 @@ type CreateAttachmentFileWithDescriptionOptions =
     description: string;
   };
 
-export type TestAttachmentFile = {
-  name: string;
-  type: string;
-  buffer: Buffer;
-  description?: string;
-};
+export type TestAttachmentFile = AttachmentData;
 
 type VerifyDownloadedAttachmentOptions = {
   page: Page;

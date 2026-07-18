@@ -1,5 +1,15 @@
 import { Page, Locator, expect } from '@playwright/test';
 import AttachmentsComponent from './components/attachments-component';
+import ContactDetailsComponent from './components/contact-details-component';
+import EmergencyContactsComponent from './components/emergency-contacts-component';
+import PersonalDetailsComponent from './components/personal-details-component';
+import DependentsComponent from './components/dependents-component';
+import ImmigrationComponent from './components/immigration-component';
+import JobComponent from './components/job-component';
+import SalaryComponent from './components/salary-component';
+import ReportToComponent from './components/report-to-component';
+import QualificationsComponent from './components/qualifications-component';
+import MembershipsComponent from './components/memberships-component';
 
 export default class MyInfoPage {
   readonly page: Page;
@@ -14,17 +24,16 @@ export default class MyInfoPage {
   readonly qualificationsLink: Locator;
   readonly membershipLink: Locator;
   readonly attachments: AttachmentsComponent;
-
-  readonly personalDetailsTitle = 'h6';
-  readonly contactDetailsTitle = 'h6';
-  readonly emergencyContactTitle = 'h6';
-  readonly dependentsTitle = 'h6';
-  readonly immigrationTitle = 'h6';
-  readonly jobTitle = 'h6';
-  readonly salaryTitle = 'h6';
-  readonly reportToTitle = 'h6';
-  readonly qualificationsTitle = 'h6';
-  readonly membershipTitle = 'h6';
+  readonly contactDetails: ContactDetailsComponent;
+  readonly emergencyContacts: EmergencyContactsComponent;
+  readonly personalDetails: PersonalDetailsComponent;
+  readonly dependents: DependentsComponent;
+  readonly immigration: ImmigrationComponent;
+  readonly job: JobComponent;
+  readonly salary: SalaryComponent;
+  readonly reportTo: ReportToComponent;
+  readonly qualifications: QualificationsComponent;
+  readonly memberships: MembershipsComponent;
 
   constructor(page: Page) {
     this.page = page;
@@ -45,6 +54,16 @@ export default class MyInfoPage {
     });
     this.membershipLink = page.getByRole('link', { name: 'Membership' });
     this.attachments = new AttachmentsComponent(page);
+    this.contactDetails = new ContactDetailsComponent(page);
+    this.emergencyContacts = new EmergencyContactsComponent(page);
+    this.personalDetails = new PersonalDetailsComponent(page);
+    this.dependents = new DependentsComponent(page);
+    this.immigration = new ImmigrationComponent(page);
+    this.job = new JobComponent(page);
+    this.salary = new SalaryComponent(page);
+    this.reportTo = new ReportToComponent(page);
+    this.qualifications = new QualificationsComponent(page);
+    this.memberships = new MembershipsComponent(page);
   }
 
   async openMyInfo() {
@@ -64,175 +83,66 @@ export default class MyInfoPage {
 
     return employeeId;
   }
-  async expectPersonalDetailsVisible() {
-    await expect(
-      this.page
-        .locator(this.personalDetailsTitle)
-        .getByText('Personal Details'),
-    ).toBeVisible();
-  }
   async openContactDetails() {
+    const responsePromise = this.page.waitForResponse(
+      (response) =>
+        response.request().method() === 'GET' &&
+        /\/api\/v2\/pim\/employee\/\d+\/contact-details$/.test(
+          response.url(),
+        ),
+    );
     await this.contactDetailsLink.click();
-  }
-  async expectContactDetailsVisible() {
-    await expect(
-      this.page.locator(this.contactDetailsTitle).getByText('Contact Details'),
-    ).toBeVisible();
+    const response = await responsePromise;
+    expect(response.status()).toBe(200);
+    await this.contactDetails.expectVisible();
   }
   async openEmergencyContacts() {
+    const responsePromise = this.page.waitForResponse(
+      (response) =>
+        response.request().method() === 'GET' &&
+        /\/api\/v2\/pim\/employees\/\d+\/emergency-contacts/.test(
+          response.url(),
+        ),
+    );
     await this.emergencyContactsLink.click();
-  }
-  async expectEmergencyContactsVisible() {
-    await expect(
-      this.page
-        .locator(this.emergencyContactTitle)
-        .getByText('Emergency Contacts'),
-    ).toBeVisible();
+    const response = await responsePromise;
+    expect(response.status()).toBe(200);
+    await this.emergencyContacts.expectVisible();
   }
   async openDependents() {
+    const responsePromise = this.page.waitForResponse(
+      (response) =>
+        response.request().method() === 'GET' &&
+        /\/api\/v2\/pim\/employees\/\d+\/dependents/.test(response.url()),
+    );
     await this.dependentsLink.click();
-  }
-  async expectDependentsVisible() {
-    await expect(
-      this.page.locator(this.dependentsTitle).getByText('Dependents'),
-    ).toBeVisible();
+    const response = await responsePromise;
+    expect(response.status()).toBe(200);
+    await this.dependents.expectVisible();
   }
   async openImmigration() {
-    await this.page.getByRole('link', { name: 'Immigration' }).click();
-  }
-  async expectImmigrationVisible() {
-    await expect(
-      this.page.locator(this.immigrationTitle).getByText('Immigration'),
-    ).toBeVisible();
+    await this.immigrationLink.click();
+    await this.immigration.expectVisible();
   }
   async openJob() {
-    await this.page.getByRole('link', { name: 'Job' }).click();
-  }
-  async expectJobVisible() {
-    await expect(
-      this.page.locator(this.jobTitle).getByText('Job'),
-    ).toBeVisible();
+    await this.jobLink.click();
+    await this.job.expectVisible();
   }
   async openSalary() {
-    await this.page.getByRole('link', { name: 'Salary' }).click();
-  }
-  async expectSalaryVisible() {
-    await expect(
-      this.page.locator(this.salaryTitle).getByText('Salary'),
-    ).toBeVisible();
+    await this.salaryLink.click();
+    await this.salary.expectVisible();
   }
   async openReportTo() {
-    await this.page.getByRole('link', { name: 'Report-to' }).click();
-  }
-  async expectReportToVisible() {
-    await expect(
-      this.page.locator(this.reportToTitle).getByText('Report To'),
-    ).toBeVisible();
+    await this.reportToLink.click();
+    await this.reportTo.expectVisible();
   }
   async openQualifications() {
-    await this.page.getByRole('link', { name: 'Qualifications' }).click();
-  }
-  async expectQualificationsVisible() {
-    await expect(
-      this.page.locator(this.qualificationsTitle).getByText('Qualifications'),
-    ).toBeVisible();
+    await this.qualificationsLink.click();
+    await this.qualifications.expectVisible();
   }
   async openMembership() {
-    await this.page.getByRole('link', { name: 'Membership' }).click();
-  }
-  async expectMembershipVisible() {
-    await expect(
-      this.page.locator(this.membershipTitle).getByText('Membership'),
-    ).toBeVisible();
+    await this.membershipLink.click();
+    await this.memberships.expectVisible();
   }
 
-  async updatePersonalDetails(
-    firstName: string,
-    middleName: string,
-    lastName: string,
-    employeeId: string,
-    otherId: string,
-    driverLicenseNumber: string,
-    licenseExpiryDate: string,
-
-    nationality: string,
-    maritalStatus: string,
-  ) {
-    const employeeIdInput = this.page
-      .getByText('Employee Id')
-      .locator('..')
-      .locator('..')
-      .locator('input');
-    const otherIdInput = this.page
-      .getByText('Other Id')
-      .locator('..')
-      .locator('..')
-      .locator('input');
-    const driverLicenseNumberInput = this.page
-      .getByText("Driver's License Number")
-      .locator('..')
-      .locator('..')
-      .locator('input');
-    const licenseExpiryDateInput = this.page
-      .locator('input[placeholder="yyyy-dd-mm"]')
-      .first();
-
-    const nationalitySelect = this.page
-      .getByText('Nationality')
-      .locator('..')
-      .locator('..')
-      .locator('.oxd-select-text');
-    const maritalStatusSelect = this.page
-      .getByText('Marital Status')
-      .locator('..')
-      .locator('..')
-      .locator('.oxd-select-text');
-    await this.page.locator('input[name="firstName"]').click();
-    await this.page.locator('input[name="firstName"]').press('Control+A');
-    await this.page.locator('input[name="firstName"]').fill(firstName);
-    await this.page.locator('input[name="middleName"]').click();
-    await this.page.locator('input[name="middleName"]').press('Control+A');
-    await this.page.locator('input[name="middleName"]').fill(middleName);
-    await this.page.locator('input[name="lastName"]').click();
-    await this.page.locator('input[name="lastName"]').press('Control+A');
-    await this.page.locator('input[name="lastName"]').fill(lastName);
-
-    await expect(this.page.locator('input[name="firstName"]')).toHaveValue(
-      firstName,
-    );
-    await expect(this.page.locator('input[name="middleName"]')).toHaveValue(
-      middleName,
-    );
-    await expect(this.page.locator('input[name="lastName"]')).toHaveValue(
-      lastName,
-    );
-
-    await this.fillInputWithValue(employeeIdInput, employeeId);
-    await this.fillInputWithValue(otherIdInput, otherId);
-    await this.fillInputWithValue(
-      driverLicenseNumberInput,
-      driverLicenseNumber,
-    );
-    await this.fillInputWithValue(licenseExpiryDateInput, licenseExpiryDate);
-
-    await this.selectDropdownOption(nationalitySelect, nationality);
-    await this.selectDropdownOption(maritalStatusSelect, maritalStatus);
-
-    await this.page.getByRole('button', { name: 'Save' }).first().click();
-    await expect(
-      this.page.locator('div').getByText('Successfully Updated'),
-    ).toBeVisible();
-  }
-  async fillInputWithValue(inputLocator: Locator, value: string) {
-    await inputLocator.click();
-    await inputLocator.press('Control+A');
-    await inputLocator.fill(value);
-  }
-  async selectDropdownOption(dropdownLocator: Locator, option: string) {
-    await dropdownLocator.click();
-
-    const optionLocator = this.page.getByRole('option', { name: option });
-    await expect(optionLocator).toBeVisible();
-    await optionLocator.click();
-  }
 }

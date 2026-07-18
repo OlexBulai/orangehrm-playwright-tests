@@ -1,8 +1,5 @@
-import { expect, test as base } from '@playwright/test';
-import { passwordLogin, usernameLogin } from '../../env';
-import AttachmentApi from '../../src/pages/api/attachment-api';
-import LoginPage from '../../src/pages/login-page';
-import MyInfoPage from '../../src/pages/my-info-page';
+import { expect, test as base } from './my-info.fixture';
+import { AttachmentData } from '../../src/types/attachment';
 
 export type AttachmentCleanup = {
   trackApi(attachmentId: number): void;
@@ -11,51 +8,20 @@ export type AttachmentCleanup = {
   forgetUi(fileName: string): void;
 };
 
-type AttachmentSetupFile = {
-  name: string;
-  type: string;
-  buffer: Buffer;
-  description: string;
-};
+type AttachmentSetupFile = AttachmentData & { description: string };
 
 export type AttachmentSetup = {
   create(file: AttachmentSetupFile): Promise<number>;
 };
 
 type MyInfoAttachmentsFixtures = {
-  myInfoPage: MyInfoPage;
-  attachmentApi: AttachmentApi;
-  employeeId: string;
   attachmentCleanup: AttachmentCleanup;
   attachmentSetup: AttachmentSetup;
 };
 
 export const test = base.extend<MyInfoAttachmentsFixtures>({
-  myInfoPage: [
-    async ({ page }, use) => {
-      const loginPage = new LoginPage(page);
-      await loginPage.open();
-      await loginPage.fillUsername(usernameLogin);
-      await loginPage.fillPassword(passwordLogin);
-      await loginPage.clickLoginButton();
-
-      const myInfoPage = new MyInfoPage(page);
-      await myInfoPage.openMyInfo();
-      await use(myInfoPage);
-    },
-    { timeout: 60_000 },
-  ],
-
-  attachmentApi: async ({ page }, use) => {
-    await use(new AttachmentApi(page.request));
-  },
-
-  employeeId: async ({ myInfoPage }, use) => {
-    await use(myInfoPage.getEmployeeId());
-  },
-
   attachmentCleanup: async (
-    { myInfoPage, attachmentApi, employeeId },
+    { attachmentApi, employeeId },
     use,
     testInfo,
   ) => {
@@ -76,24 +42,16 @@ export const test = base.extend<MyInfoAttachmentsFixtures>({
       throw error;
     } finally {
       const cleanupErrors: unknown[] = [];
-      const existingUiFileNames: string[] = [];
 
-      for (const fileName of uiFileNames) {
-        try {
-          if (await myInfoPage.attachments.attachmentExists(fileName)) {
-            existingUiFileNames.push(fileName);
+      try {
+        const attachments = await attachmentApi.getAll(employeeId, 'personal');
+        for (const attachment of attachments.data) {
+          if (uiFileNames.has(attachment.filename)) {
+            apiAttachmentIds.add(attachment.id);
           }
-        } catch (error) {
-          cleanupErrors.push(error);
         }
-      }
-
-      for (const fileName of existingUiFileNames) {
-        try {
-          await myInfoPage.attachments.deleteAttachment(fileName);
-        } catch (error) {
-          cleanupErrors.push(error);
-        }
+      } catch (error) {
+        cleanupErrors.push(error);
       }
 
       for (const attachmentId of apiAttachmentIds) {

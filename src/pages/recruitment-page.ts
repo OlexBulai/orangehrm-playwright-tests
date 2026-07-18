@@ -3,10 +3,6 @@ import { Page } from '@playwright/test';
 export default class RecruitmentPage {
   constructor(private readonly page: Page) {}
 
-  get candidatesHeading() {
-    return this.page.getByRole('heading', { name: 'Candidates' });
-  }
-
   get addCandidateHeading() {
     return this.page.getByRole('heading', { name: 'Add Candidate' });
   }
@@ -32,25 +28,13 @@ export default class RecruitmentPage {
     await this.page.getByRole('button', { name: 'Save' }).click();
   }
 
-  async searchCandidates() {
-    await this.page.getByRole('button', { name: 'Search' }).click();
-  }
-
-  private async selectDropdown(dropdownIndex: number, optionName: string) {
+  private async selectFirstDropdownOption(dropdownIndex: number) {
     await this.page.locator('.oxd-select-text').nth(dropdownIndex).click();
-    await this.page.getByRole('option', { name: optionName }).click();
-  }
-
-  async selectJobTitle(jobTitle: string) {
-    await this.selectDropdown(0, jobTitle);
-  }
-
-  async selectStatus(status: string) {
-    await this.selectDropdown(3, status);
-  }
-
-  async selectMethodOfApplication(method: string) {
-    await this.selectDropdown(4, method);
+    await this.page
+      .getByRole('option')
+      .filter({ hasNotText: '-- Select --' })
+      .first()
+      .click();
   }
 
   async fillCandidateForm(firstName: string, lastName: string, email: string) {
@@ -69,10 +53,9 @@ export default class RecruitmentPage {
     firstName: string,
     lastName: string,
     email: string,
-    vacancy: string,
   ) {
     await this.fillCandidateForm(firstName, lastName, email);
-    await this.selectDropdown(0, vacancy);
+    await this.selectFirstDropdownOption(0);
     await this.submitForm();
   }
 }

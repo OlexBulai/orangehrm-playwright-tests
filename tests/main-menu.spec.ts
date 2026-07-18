@@ -1,50 +1,71 @@
-import { test, expect } from '@playwright/test';
-import LoginPage from '../src/pages/login-page';
+import { passwordLogin } from '../env';
+import { mainMenuItems } from '../src/pages/main-menu-page';
+import { test, expect } from './fixtures/main-menu.fixture';
+import { apiCases, navigationCases } from './helpers/main-menu-test-data';
 
-import { usernameLogin, passwordLogin } from '../env';
-import MainMenuPage from '../src/pages/main-menu-page';
+test.describe('Main menu tests', () => {
+  test('Main menu shows all items in the correct order', async ({
+    mainMenuPage,
+  }) => {
+    await mainMenuPage.expectItemsInOrder();
 
-test.describe('OrangeHRM auth tests', () => {
-  let loginPage: LoginPage;
-  let mainMenuPage: MainMenuPage;
-
-  test.beforeEach('Navigate to login page', async ({ page }) => {
-    loginPage = new LoginPage(page);
-    mainMenuPage = new MainMenuPage(page);
-    await loginPage.open();
+    for (const name of mainMenuItems) {
+      await expect(mainMenuPage.item(name)).toBeVisible();
+    }
   });
 
-  test('User can navigate through main menu tabs', async ({ page }) => {
-    const loginPage = new LoginPage(page);
-    const mainMenuPage = new MainMenuPage(page);
+  test('User can navigate through main menu sections', async ({
+    page,
+    mainMenuPage,
+  }) => {
+    for (const navigation of navigationCases) {
+      await test.step(`Open ${navigation.name}`, async () => {
+        await mainMenuPage.open(navigation.name);
+        await expect(page).toHaveURL(navigation.url);
+        await expect(
+          page
+            .getByRole('heading', {
+              name: navigation.heading,
+              exact: true,
+            })
+            .first(),
+        ).toBeVisible();
+      });
+    }
+  });
 
-    await loginPage.fillUsername(usernameLogin);
-    await loginPage.fillPassword(passwordLogin);
-    await loginPage.clickLoginButton();
-    await mainMenuPage.openAdmin();
-    await expect(page).toHaveURL(/admin/);
-    await mainMenuPage.openPIM();
-    await expect(page).toHaveURL(/pim/);
-    await mainMenuPage.openLeave();
-    await expect(page).toHaveURL(/leave/);
-    await mainMenuPage.openTime();
-    await expect(page).toHaveURL(/time/);
-    await mainMenuPage.openRecruitment();
-    await expect(page).toHaveURL(/recruitment/);
-    await mainMenuPage.openMyInfo();
-    await expect(page).toHaveURL(/viewPersonalDetails/);
-    await mainMenuPage.openPerformance();
-    await expect(page).toHaveURL(/performance/);
-    await mainMenuPage.openDashboard();
-    await expect(page).toHaveURL(/dashboard/);
-    await mainMenuPage.openDirectory();
-    await expect(page).toHaveURL(/directory/);
-    await mainMenuPage.openMaintenance();
+  test('Key menu sections load their API data', async ({
+    page,
+    mainMenuPage,
+  }) => {
+    for (const apiCase of apiCases) {
+      await test.step(`${apiCase.name} API responds successfully`, async () => {
+        const responsePromise = page.waitForResponse(
+          (response) =>
+            response.url().includes(apiCase.apiPath) &&
+            response.request().method() === 'GET',
+        );
+
+        await mainMenuPage.open(apiCase.name);
+        const response = await responsePromise;
+
+        expect(response.ok()).toBeTruthy();
+      });
+    }
+  });
+
+  test('User can confirm access to Maintenance', async ({
+    page,
+    mainMenuPage,
+  }) => {
+    await mainMenuPage.open('Maintenance');
+    await expect(page).toHaveURL(/maintenance\/purgeEmployee/);
+
     await mainMenuPage.confirmMaintenancePassword(passwordLogin);
-    await expect(page).toHaveURL(/maintenance/);
-    await mainMenuPage.openBuzz();
-    await expect(page).toHaveURL(/buzz/);
-    await mainMenuPage.openClaim();
-    await expect(page).toHaveURL(/claim/);
+
+    await expect(page).toHaveURL(/maintenance\/purgeEmployee/);
+    await expect(
+      page.getByRole('heading', { name: 'Purge Employee Records' }),
+    ).toBeVisible();
   });
 });

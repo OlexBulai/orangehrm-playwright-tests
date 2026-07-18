@@ -1,10 +1,6 @@
 import { Download, expect, Locator, Page } from '@playwright/test';
-
-export type AttachmentFile = {
-  name: string;
-  type: string;
-  buffer: Buffer;
-};
+import { AttachmentData } from '../../types/attachment';
+import type { AttachmentScreen } from '../api/attachment-api';
 
 type ExpectedAttachment = {
   fileName: string;
@@ -19,9 +15,15 @@ export default class AttachmentsComponent {
   readonly saveAttachmentButton: Locator;
   readonly confirmDeleteButton: Locator;
 
-  constructor(page: Page) {
+  constructor(
+    page: Page,
+    private readonly screen: AttachmentScreen = 'personal',
+  ) {
     this.page = page;
-    this.addAttachmentButton = page.getByRole('button', { name: 'Add' });
+    const heading = page.getByRole('heading', { name: 'Attachments' });
+    this.addAttachmentButton = heading.locator(
+      'xpath=following::button[contains(normalize-space(.),"Add")][1]',
+    );
     this.fileInput = page.locator('input[type="file"]');
     this.commentInput = page.locator('textarea');
     this.saveAttachmentButton = page
@@ -51,7 +53,7 @@ export default class AttachmentsComponent {
     await expect(this.getAttachmentForm()).toBeVisible();
   }
 
-  async selectFile(file: AttachmentFile): Promise<void> {
+  async selectFile(file: AttachmentData): Promise<void> {
     await this.fileInput.setInputFiles({
       name: file.name,
       mimeType: file.type,
@@ -68,7 +70,7 @@ export default class AttachmentsComponent {
   }
 
   async addAttachment(
-    file: AttachmentFile,
+    file: AttachmentData,
     comment: string,
   ): Promise<void> {
     await this.openAddForm();
@@ -86,8 +88,8 @@ export default class AttachmentsComponent {
     const deleteResponsePromise = this.page.waitForResponse((response) => {
       return (
         response.request().method() === 'DELETE' &&
-        /\/api\/v2\/pim\/employees\/\d+\/screen\/personal\/attachments$/.test(
-          new URL(response.url()).pathname,
+        new URL(response.url()).pathname.endsWith(
+          `/screen/${this.screen}/attachments`,
         )
       );
     });
@@ -101,7 +103,7 @@ export default class AttachmentsComponent {
 
   async editAttachment(
     currentFileName: string,
-    replacementFile: AttachmentFile,
+    replacementFile: AttachmentData,
   ): Promise<void> {
     await this.getAttachmentRow(currentFileName)
       .locator('button:has(i.bi-pencil-fill)')
@@ -153,5 +155,15 @@ export default class AttachmentsComponent {
   async expectAddButtonEnabled(): Promise<void> {
     await expect(this.addAttachmentButton).toBeVisible();
     await expect(this.addAttachmentButton).toBeEnabled();
+  }
+
+  async expectCount(total: number): Promise<void> {
+    const heading = this.page.getByRole('heading', { name: 'Attachments' });
+    const table = heading.locator(
+      'xpath=following::div[contains(@class,"orangehrm-container")][1]',
+    );
+    await expect(table.locator('.oxd-table-body .oxd-table-card')).toHaveCount(
+      total,
+    );
   }
 }

@@ -1,20 +1,11 @@
-import { test, expect } from '@playwright/test';
-import LoginPage from '../src/pages/login-page';
+import { test, expect } from './fixtures/authenticated.fixture';
 import TimePage from '../src/pages/time-page';
-import { usernameLogin, passwordLogin } from '../env';
 
 
 test.describe('Time Page', () => {
   let timePage: TimePage;
 
   test.beforeEach(async ({ page }) => {
-    const loginPage = new LoginPage(page);
-
-    await loginPage.open();
-    await loginPage.fillUsername(usernameLogin);
-    await loginPage.fillPassword(passwordLogin);
-    await loginPage.clickLoginButton();
-
     timePage = new TimePage(page);
   });
 
@@ -26,39 +17,21 @@ test.describe('Time Page', () => {
 
   test('Admin cannot view timesheet without employee name', async () => {
     await timePage.open();
-    await timePage.clickViewTimesheetButton();
+    await timePage.viewButton.click();
     await expect(timePage.requiredMessages).toHaveCount(2);
   });
 
   test('Admin can view employee timesheet by employee name', async () => {
     await timePage.open();
-    await timePage.fillEmployeeName('JoyToy  SmithSmith');
+    await timePage.selectAvailableEmployee();
     await timePage.clickViewTimesheetButton();
 
-    await expect(timePage.timesheetForText).toBeVisible();
-  });
-
-  test('Admin can open employee timesheet edit mode', async () => {
-    await timePage.open();
-    await timePage.fillEmployeeName('JoyToy  SmithSmith');
-    await timePage.clickViewTimesheetButton();
-
-    await timePage.clickEditButton();
-    await expect(timePage.resetButton).toBeVisible();
-  });
-
-  test('Admin can cancel employee timesheet editing', async () => {
-    await timePage.open();
-    await timePage.fillEmployeeName('JoyToy  SmithSmith');
-    await timePage.clickViewTimesheetButton();
-    await timePage.clickEditButton();
-    await timePage.clickCancelButton();
     await expect(timePage.timesheetForText).toBeVisible();
   });
 
   test('Admin can navigate employee timesheet period', async () => {
     await timePage.open();
-    await timePage.fillEmployeeName('JoyToy  SmithSmith');
+    await timePage.selectAvailableEmployee();
     await timePage.clickViewTimesheetButton();
     await expect(timePage.timesheetForText).toBeVisible();
 

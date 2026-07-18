@@ -6,6 +6,7 @@ import {
 } from './helpers/attachment-test-helpers';
 
 test.describe('My Info attachment tests', () => {
+  test.describe.configure({ mode: 'serial' });
   test('User can add attachment', async ({ myInfoPage, attachmentCleanup }) => {
     const file = createAttachmentFile({
       prefix: 'add-attachment',
