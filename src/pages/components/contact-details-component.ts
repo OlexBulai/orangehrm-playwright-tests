@@ -66,7 +66,7 @@ export default class ContactDetailsComponent {
     await this.input('Other Email').fill(data.otherEmail);
   }
 
-  async save(): Promise<Record<string, string | null>> {
+  async saveContactDetails(): Promise<Record<string, string | null>> {
     const saveButton = this.form.getByRole('button', { name: 'Save' });
     await expect(saveButton).toBeEnabled();
     const responsePromise = this.page.waitForResponse(
@@ -88,7 +88,7 @@ export default class ContactDetailsComponent {
 
   async update(data: ContactDetailsData) {
     await this.fill(data);
-    return this.save();
+    return this.saveContactDetails();
   }
 
   async expectValues(data: ContactDetailsData) {

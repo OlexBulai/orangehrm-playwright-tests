@@ -110,7 +110,7 @@ export default class PersonalDetailsComponent {
     await expect(this.form.locator(`input[type="radio"][value="${genderValue}"]`)).toBeChecked();
   }
 
-  async save(): Promise<Record<string, unknown>> {
+  async savePersonalDetails(): Promise<Record<string, unknown>> {
     const responsePromise = this.page.waitForResponse(
       (response) =>
         response.request().method() === 'PUT' &&

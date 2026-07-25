@@ -82,7 +82,7 @@ export default class EmergencyContactsComponent {
     await replaceInputValue(this.input(label), value);
   }
 
-  async save(method: 'POST' | 'PUT') {
+  private async save(method: 'POST' | 'PUT') {
     const responsePromise = this.page.waitForResponse(
       (response) =>
         response.request().method() === method &&
@@ -100,13 +100,13 @@ export default class EmergencyContactsComponent {
     };
   }
 
-  async add(data: EmergencyContactData) {
+  async addEmergencyContact(data: EmergencyContactData) {
     await this.openAddForm();
     await this.fill(data);
     return this.save('POST');
   }
 
-  async edit(currentName: string, data: EmergencyContactData) {
+  async editEmergencyContact(currentName: string, data: EmergencyContactData) {
     await this.getRow(currentName).locator('button:has(i.bi-pencil-fill)').click();
     await expect(this.form()).toBeVisible();
     await this.fill(data);
@@ -122,7 +122,7 @@ export default class EmergencyContactsComponent {
     await expect(this.input('Work Telephone')).toHaveValue(data.workPhone);
   }
 
-  async delete(name: string) {
+  async deleteEmergencyContact(name: string) {
     await this.getRow(name).locator('button:has(i.bi-trash)').click();
     const responsePromise = this.page.waitForResponse(
       (response) =>

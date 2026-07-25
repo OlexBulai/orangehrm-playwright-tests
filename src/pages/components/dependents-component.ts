@@ -85,7 +85,7 @@ export default class DependentsComponent {
     await expect(this.input('Date of Birth')).toHaveValue(data.dateOfBirth);
   }
 
-  async save(method: 'POST' | 'PUT') {
+  private async save(method: 'POST' | 'PUT') {
     const responsePromise = this.page.waitForResponse(
       (response) =>
         response.request().method() === method &&
@@ -103,14 +103,14 @@ export default class DependentsComponent {
     };
   }
 
-  async add(data: DependentData) {
+  async addDependent(data: DependentData) {
     await this.openAddForm();
     await this.fill(data);
     await this.expectFormValues(data);
     return this.save('POST');
   }
 
-  async edit(currentName: string, data: DependentData) {
+  async editDependent(currentName: string, data: DependentData) {
     await this.getRow(currentName).locator('button:has(i.bi-pencil-fill)').click();
     await expect(this.form()).toBeVisible();
     await this.fill(data);
@@ -118,7 +118,7 @@ export default class DependentsComponent {
     return this.save('PUT');
   }
 
-  async delete(name: string) {
+  async deleteDependent(name: string) {
     await this.getRow(name).locator('button:has(i.bi-trash)').click();
     const responsePromise = this.page.waitForResponse(
       (response) =>

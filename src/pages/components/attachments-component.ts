@@ -65,7 +65,7 @@ export default class AttachmentsComponent {
     await this.commentInput.fill(comment);
   }
 
-  async save(): Promise<void> {
+  async saveAttachment(): Promise<void> {
     await this.saveAttachmentButton.click();
   }
 
@@ -76,7 +76,7 @@ export default class AttachmentsComponent {
     await this.openAddForm();
     await this.selectFile(file);
     await this.fillComment(comment);
-    await this.save();
+    await this.saveAttachment();
     await this.expectFormHidden();
   }
 
@@ -110,7 +110,7 @@ export default class AttachmentsComponent {
       .click();
     await expect(this.getAttachmentForm()).toBeVisible();
     await this.selectFile(replacementFile);
-    await this.save();
+    await this.saveAttachment();
     await this.expectFormHidden();
   }
 

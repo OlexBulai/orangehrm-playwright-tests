@@ -111,7 +111,7 @@ export default class ImmigrationComponent {
     await expect(this.comments()).toHaveValue(data.comments);
   }
 
-  async save(method: 'POST' | 'PUT') {
+  private async save(method: 'POST' | 'PUT') {
     const responsePromise = this.page.waitForResponse(
       (response) =>
         response.request().method() === method &&
@@ -129,14 +129,14 @@ export default class ImmigrationComponent {
     };
   }
 
-  async add(data: ImmigrationDocumentData) {
+  async addImmigrationDocument(data: ImmigrationDocumentData) {
     await this.openAddForm();
     await this.fill(data);
     await this.expectFormValues(data);
     return this.save('POST');
   }
 
-  async edit(currentNumber: string, data: ImmigrationDocumentData) {
+  async editImmigrationDocument(currentNumber: string, data: ImmigrationDocumentData) {
     await this.getRow(currentNumber).locator('button:has(i.bi-pencil-fill)').click();
     await expect(this.form()).toBeVisible();
     await this.fill(data);
@@ -144,7 +144,7 @@ export default class ImmigrationComponent {
     return this.save('PUT');
   }
 
-  async delete(number: string) {
+  async deleteImmigrationDocument(number: string) {
     await this.getRow(number).locator('button:has(i.bi-trash)').click();
     const responsePromise = this.page.waitForResponse(
       (response) =>

@@ -1,4 +1,4 @@
-import { test, expect } from './fixtures/authenticated.fixture';
+import { test, expect } from './fixtures/shared/authenticated.fixture';
 import PimPage from '../src/pages/pim-page';
 import { faker } from '@faker-js/faker';
 import { baseUrl } from '../env';

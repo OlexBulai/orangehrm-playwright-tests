@@ -1,4 +1,4 @@
-import { expect, test as base } from './authenticated.fixture';
+import { expect, test as base } from './shared/authenticated.fixture';
 import MainMenuPage from '../../src/pages/main-menu-page';
 
 type MainMenuFixtures = {

@@ -1,4 +1,4 @@
-import { test, expect } from './fixtures/authenticated.fixture';
+import { test, expect } from './fixtures/shared/authenticated.fixture';
 import DirectoryPage from '../src/pages/directory-page';
 
 test.describe('Directory Page', () => {

@@ -89,7 +89,7 @@ export default class MembershipsComponent {
     await expect(this.form()).toBeVisible();
   }
 
-  async add(data: MembershipData): Promise<number> {
+  async addMembership(data: MembershipData): Promise<number> {
     await this.openAddForm();
     await this.fill(data);
     const saved = await this.save<{ data: MembershipRecord }>('POST');
@@ -97,7 +97,7 @@ export default class MembershipsComponent {
     return saved.data.id;
   }
 
-  async edit(currentName: string, data: MembershipData) {
+  async editMembership(currentName: string, data: MembershipData) {
     await this.row(currentName).locator('button:has(i.bi-pencil-fill)').click();
     await this.fill(data);
     await this.save('PUT');
@@ -105,7 +105,7 @@ export default class MembershipsComponent {
     await this.expectMembership(data.membership, data.amount);
   }
 
-  async delete(name: string) {
+  async deleteMembership(name: string) {
     const row = this.row(name);
     await row.locator('button:has(i.bi-trash)').click();
     const responsePromise = this.page.waitForResponse(

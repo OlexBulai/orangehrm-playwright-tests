@@ -1,4 +1,4 @@
-import { test, expect } from './fixtures/authenticated.fixture';
+import { test, expect } from './fixtures/shared/authenticated.fixture';
 import { faker } from '@faker-js/faker';
 import RecruitmentPage from '../src/pages/recruitment-page';
 import { baseUrl } from '../env';
