@@ -1,23 +1,15 @@
-import { test, expect } from '@playwright/test';
-import LoginPage from '../src/pages/login-page';
+import { test, expect } from './fixtures/shared/authenticated.fixture';
 import PimPage from '../src/pages/pim-page';
-import { usernameLogin, passwordLogin } from '../env';
 import { faker } from '@faker-js/faker';
+import { baseUrl } from '../env';
 
 test.describe('OrangeHRM PIM tests', () => {
+  test.describe.configure({ mode: 'serial' });
   const employeeName = faker.person.firstName() + ' ' + faker.person.lastName();
   const employeeId = faker.number.int({ min: 1000, max: 9999 }).toString();
   const firstName = faker.person.firstName();
   const lastName = faker.person.lastName();
 
-  test.beforeEach('Navigate to login page', async ({ page }) => {
-    const loginPage = new LoginPage(page);
-
-    await loginPage.open();
-    await loginPage.fillUsername(usernameLogin);
-    await loginPage.fillPassword(passwordLogin);
-    await loginPage.clickLoginButton();
-  });
   test('Admin can fill Employee Information search form', async ({ page }) => {
     const pimPage = new PimPage(page);
     await pimPage.openPimPage();
@@ -31,28 +23,49 @@ test.describe('OrangeHRM PIM tests', () => {
     page,
   }) => {
     const pimPage = new PimPage(page);
+    let createdEmployeeNumber: number | undefined;
 
-    await pimPage.openPimPage();
-    await pimPage.clickAddButton();
+    try {
+      await pimPage.openPimPage();
+      await pimPage.clickAddButton();
 
-    await expect(
-      page.getByRole('heading', { name: 'Add Employee' }),
-    ).toBeVisible();
+      await expect(
+        page.getByRole('heading', { name: 'Add Employee' }),
+      ).toBeVisible();
 
-    await pimPage.fillFirstName(firstName);
-    await pimPage.fillLastName(lastName);
-    await pimPage.fillAddEmployeeId(employeeId);
+      await pimPage.fillFirstName(firstName);
+      await pimPage.fillLastName(lastName);
+      await pimPage.fillAddEmployeeId(employeeId);
 
-    await pimPage.clickSaveButton();
-    await expect(
-      page.getByRole('heading', { name: 'Personal Details' }),
-    ).toBeVisible();
-    await pimPage.openEmployeeList();
+      const createResponsePromise = page.waitForResponse(
+        (response) =>
+          response.request().method() === 'POST' &&
+          response.url().endsWith('/api/v2/pim/employees'),
+      );
+      await pimPage.clickSaveButton();
+      const createResponse = await createResponsePromise;
+      expect(createResponse.status()).toBe(200);
+      const body = (await createResponse.json()) as {
+        data: { empNumber: number };
+      };
+      createdEmployeeNumber = body.data.empNumber;
 
-    await pimPage.fillSearchEmployeeId(employeeId);
-    await pimPage.clickSearchButton();
+      await expect(
+        page.getByRole('heading', { name: 'Personal Details' }),
+      ).toBeVisible();
+      await pimPage.openEmployeeList();
 
-    await expect(page.getByText(employeeId)).toBeVisible();
-    
+      await pimPage.fillSearchEmployeeId(employeeId);
+      await pimPage.clickSearchButton();
+      await expect(page.getByText(employeeId)).toBeVisible();
+    } finally {
+      if (createdEmployeeNumber !== undefined) {
+        const deleteResponse = await page.request.delete(
+          `${baseUrl}/api/v2/pim/employees`,
+          { data: { ids: [createdEmployeeNumber] } },
+        );
+        expect(deleteResponse.status()).toBe(200);
+      }
+    }
   });
 });

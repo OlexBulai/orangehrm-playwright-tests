@@ -6,3 +6,8 @@ node_modules/
 /blob-report/
 /playwright/.cache/
 /playwright/.auth/
+
+# Local environment variables (keep the safe template tracked)
+.env
+.env.*
+!.env.example
