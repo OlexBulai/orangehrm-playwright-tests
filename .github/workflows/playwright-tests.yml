@@ -36,20 +36,30 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Install Playwright browsers
-        run: npx playwright install --with-deps
+      - name: Show test environment
+        run: |
+          echo "Suite: ${{ inputs.test_suite }}"
+          node --version
+          npm --version
+          npx playwright --version
+
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
 
       - name: Run all tests
         if: ${{ inputs.test_suite == 'all' }}
-        run: npx playwright test
+        timeout-minutes: 50
+        run: npx playwright test --project=chromium
 
       - name: Run My Info tests
         if: ${{ inputs.test_suite == 'my-info' }}
-        run: npx playwright test tests/my-info
+        timeout-minutes: 50
+        run: npx playwright test tests/my-info --project=chromium
 
       - name: Run Admin tests
         if: ${{ inputs.test_suite == 'admin' }}
-        run: npx playwright test tests/admin
+        timeout-minutes: 50
+        run: npx playwright test tests/admin --project=chromium
 
       - name: Upload Playwright report
         if: ${{ always() }}
@@ -57,5 +67,14 @@ jobs:
         with:
           name: playwright-report-${{ inputs.test_suite }}
           path: playwright-report/
+          retention-days: 14
+          if-no-files-found: warn
+
+      - name: Upload failure diagnostics
+        if: ${{ failure() }}
+        uses: actions/upload-artifact@v5
+        with:
+          name: test-results-${{ inputs.test_suite }}
+          path: test-results/
           retention-days: 14
           if-no-files-found: warn
