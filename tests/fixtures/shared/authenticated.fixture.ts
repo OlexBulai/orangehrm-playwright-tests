@@ -1,5 +1,5 @@
 import { expect, test as base } from '@playwright/test';
-import { passwordLogin, usernameLogin } from '../../../env';
+import { baseUrl, passwordLogin, usernameLogin } from '../../../env';
 import LoginPage from '../../../src/pages/login-page';
 
 type AuthenticatedFixtures = {
@@ -10,6 +10,8 @@ export const test = base.extend<AuthenticatedFixtures>({
   authenticated: [
     async ({ page }, use) => {
       if (process.env.CI) {
+        await page.goto(`${baseUrl}/dashboard/index`);
+        await expect(page).toHaveURL(/dashboard/, { timeout: 20_000 });
         await use();
         return;
       }
