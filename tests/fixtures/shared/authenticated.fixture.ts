@@ -9,6 +9,11 @@ type AuthenticatedFixtures = {
 export const test = base.extend<AuthenticatedFixtures>({
   authenticated: [
     async ({ page }, use) => {
+      if (process.env.CI) {
+        await use();
+        return;
+      }
+
       const loginPage = new LoginPage(page);
       await loginPage.open();
       await loginPage.fillUsername(usernameLogin);

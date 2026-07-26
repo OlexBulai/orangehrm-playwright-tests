@@ -2,6 +2,8 @@ import { test, expect } from "@playwright/test";
 import LoginPage from "../src/pages/login-page";
 import { usernameLogin, passwordLogin } from "../env";
 
+test.use({ storageState: { cookies: [], origins: [] } });
+
 test.describe("OrangeHRM auth tests", () => {
   const dashboardTitle = "h6";
 

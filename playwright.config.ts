@@ -1,5 +1,7 @@
 import { defineConfig, devices } from '@playwright/test';
 
+const authFile = 'playwright/.auth/user.json';
+
 /**
  * Read environment variables from file.
  * https://github.com/motdotla/dotenv
@@ -18,8 +20,8 @@ export default defineConfig({
   /* Fail the build on CI if you accidentally left test.only in the source code. */
   forbidOnly: !!process.env.CI,
   /* Retry on CI only */
-  retries: process.env.CI ? 1 : 0,
-  workers: 1,
+  retries: 0,
+  workers: process.env.CI ? 2 : 1,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   reporter: process.env.CI
     ? [
@@ -35,23 +37,38 @@ export default defineConfig({
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: process.env.CI ? 'retain-on-failure' : 'on-first-retry',
     screenshot: 'only-on-failure',
-    video: process.env.CI ? 'retain-on-failure' : 'off',
+    video: 'off',
   },
 
   /* Configure projects for major browsers */
   projects: [
+    ...(process.env.CI
+      ? [
+          {
+            name: 'setup',
+            testMatch: /.*\.setup\.ts/,
+          },
+        ]
+      : []),
     {
       name: 'chromium',
-      use: { ...devices['Desktop Chrome'] },
+      testIgnore: /.*\.setup\.ts/,
+      dependencies: process.env.CI ? ['setup'] : [],
+      use: {
+        ...devices['Desktop Chrome'],
+        storageState: process.env.CI ? authFile : undefined,
+      },
     },
 
     {
       name: 'firefox',
+      testIgnore: /.*\.setup\.ts/,
       use: { ...devices['Desktop Firefox'] },
     },
 
     {
       name: 'webkit',
+      testIgnore: /.*\.setup\.ts/,
       use: { ...devices['Desktop Safari'] },
     },
 
