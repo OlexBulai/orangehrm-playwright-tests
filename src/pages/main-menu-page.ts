@@ -37,9 +37,4 @@ export default class MainMenuPage {
   async open(name: MainMenuItem) {
     await this.item(name).click();
   }
-
-  async confirmMaintenancePassword(password: string) {
-    await this.page.locator('input[name="password"]').fill(password);
-    await this.page.getByRole('button', { name: 'Confirm' }).click();
-  }
 }

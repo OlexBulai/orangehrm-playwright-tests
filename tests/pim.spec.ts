@@ -19,53 +19,75 @@ test.describe('OrangeHRM PIM tests', () => {
     await pimPage.fillSearchEmployeeId(employeeId);
   });
 
-  test('Admin can create employee and search it in Employee List', async ({
+  test('Admin can search Employee List without changing data', async ({
     page,
   }) => {
     const pimPage = new PimPage(page);
-    let createdEmployeeNumber: number | undefined;
+    await pimPage.openPimPage();
 
-    try {
-      await pimPage.openPimPage();
-      await pimPage.clickAddButton();
-
-      await expect(
-        page.getByRole('heading', { name: 'Add Employee' }),
-      ).toBeVisible();
-
-      await pimPage.fillFirstName(firstName);
-      await pimPage.fillLastName(lastName);
-      await pimPage.fillAddEmployeeId(employeeId);
-
-      const createResponsePromise = page.waitForResponse(
-        (response) =>
-          response.request().method() === 'POST' &&
-          response.url().endsWith('/api/v2/pim/employees'),
-      );
-      await pimPage.clickSaveButton();
-      const createResponse = await createResponsePromise;
-      expect(createResponse.status()).toBe(200);
-      const body = (await createResponse.json()) as {
-        data: { empNumber: number };
-      };
-      createdEmployeeNumber = body.data.empNumber;
-
-      await expect(
-        page.getByRole('heading', { name: 'Personal Details' }),
-      ).toBeVisible();
-      await pimPage.openEmployeeList();
-
-      await pimPage.fillSearchEmployeeId(employeeId);
-      await pimPage.clickSearchButton();
-      await expect(page.getByText(employeeId)).toBeVisible();
-    } finally {
-      if (createdEmployeeNumber !== undefined) {
-        const deleteResponse = await page.request.delete(
-          `${baseUrl}/api/v2/pim/employees`,
-          { data: { ids: [createdEmployeeNumber] } },
-        );
-        expect(deleteResponse.status()).toBe(200);
-      }
-    }
+    expect((await pimPage.searchEmployees()).ok()).toBeTruthy();
   });
+
+  test('Admin can reset Employee Information filters', async ({ page }) => {
+    const pimPage = new PimPage(page);
+    await pimPage.openPimPage();
+    await pimPage.fillSearchEmployeeId('temporary-id');
+    await pimPage.resetButton.click();
+
+    await expect(pimPage.searchEmployeeIdInput).toHaveValue('');
+  });
+
+  test(
+    'Admin can create employee and search it in Employee List',
+    {
+      tag: '@mutation',
+    },
+    async ({ page }) => {
+      const pimPage = new PimPage(page);
+      let createdEmployeeNumber: number | undefined;
+
+      try {
+        await pimPage.openPimPage();
+        await pimPage.clickAddButton();
+
+        await expect(
+          page.getByRole('heading', { name: 'Add Employee' }),
+        ).toBeVisible();
+
+        await pimPage.fillFirstName(firstName);
+        await pimPage.fillLastName(lastName);
+        await pimPage.fillAddEmployeeId(employeeId);
+
+        const createResponsePromise = page.waitForResponse(
+          (response) =>
+            response.request().method() === 'POST' &&
+            response.url().endsWith('/api/v2/pim/employees'),
+        );
+        await pimPage.clickSaveButton();
+        const createResponse = await createResponsePromise;
+        expect(createResponse.status()).toBe(200);
+        const body = (await createResponse.json()) as {
+          data: { empNumber: number };
+        };
+        createdEmployeeNumber = body.data.empNumber;
+
+        await expect(
+          page.getByRole('heading', { name: 'Personal Details' }),
+        ).toBeVisible();
+        await pimPage.openEmployeeList();
+
+        await pimPage.fillSearchEmployeeId(employeeId);
+        await pimPage.clickSearchButton();
+        await expect(page.getByText(employeeId)).toBeVisible();
+      } finally {
+        if (createdEmployeeNumber !== undefined) {
+          const deleteResponse = await page.request.delete(
+            `${baseUrl}/api/v2/pim/employees`,
+            { data: { ids: [createdEmployeeNumber] } },
+          );
+          expect(deleteResponse.status()).toBe(200);
+        }
+      }
+    },
+  );
 });

@@ -27,7 +27,9 @@ export default class WorkShiftsComponent {
 
   async openWorkShifts(): Promise<void> {
     await this.page.getByRole('link', { name: 'Admin' }).click();
-    const navigation = this.page.getByRole('navigation', { name: 'Topbar Menu' });
+    const navigation = this.page.getByRole('navigation', {
+      name: 'Topbar Menu',
+    });
     await navigation.getByText('Job', { exact: true }).click();
     await this.page.getByRole('menuitem', { name: 'Work Shifts' }).click();
     await expect(this.page).toHaveURL(/admin\/workShift/);
@@ -116,7 +118,9 @@ export default class WorkShiftsComponent {
   }
 
   private async waitForForm(heading: string): Promise<void> {
-    await expect(this.page.getByRole('heading', { name: heading })).toBeVisible();
+    await expect(
+      this.page.getByRole('heading', { name: heading }),
+    ).toBeVisible();
     await expect(this.page.locator('.oxd-form-loader')).toBeHidden();
   }
 

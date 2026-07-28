@@ -22,11 +22,7 @@ export const test = base.extend<ImmigrationFixtures>({
     await use(new ImmigrationApi(page.request));
   },
 
-  immigrationCleanup: async (
-    { immigrationApi, employeeId },
-    use,
-    testInfo,
-  ) => {
+  immigrationCleanup: async ({ immigrationApi, employeeId }, use, testInfo) => {
     const ids = new Set<number>();
     const cleanup: ImmigrationCleanup = {
       track: (id) => ids.add(id),
@@ -53,13 +49,7 @@ export const test = base.extend<ImmigrationFixtures>({
   },
 
   immigrationSetup: async (
-    {
-      page,
-      myInfoPage,
-      immigrationApi,
-      employeeId,
-      immigrationCleanup,
-    },
+    { page, myInfoPage, immigrationApi, employeeId, immigrationCleanup },
     use,
   ) => {
     await use({

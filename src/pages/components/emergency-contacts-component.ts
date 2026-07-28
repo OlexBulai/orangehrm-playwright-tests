@@ -1,9 +1,5 @@
 import { expect, Locator, Page } from '@playwright/test';
-import {
-  exactLabel,
-  inputGroup,
-  replaceInputValue,
-} from './form-controls';
+import { exactLabel, inputGroup, replaceInputValue } from './form-controls';
 
 export type EmergencyContactData = {
   name: string;
@@ -107,7 +103,9 @@ export default class EmergencyContactsComponent {
   }
 
   async editEmergencyContact(currentName: string, data: EmergencyContactData) {
-    await this.getRow(currentName).locator('button:has(i.bi-pencil-fill)').click();
+    await this.getRow(currentName)
+      .locator('button:has(i.bi-pencil-fill)')
+      .click();
     await expect(this.form()).toBeVisible();
     await this.fill(data);
     await this.expectFormValues(data);

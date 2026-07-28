@@ -14,7 +14,7 @@ test.describe('My Info Personal Details tests', () => {
     await myInfoPage.personalDetails.expectVisible();
   });
 
-  test.describe('Personal Details updates', () => {
+  test.describe('Personal Details updates', { tag: '@mutation' }, () => {
     test.describe.configure({ mode: 'serial' });
     test.skip(
       ({ browserName }) => browserName !== 'chromium',
@@ -29,7 +29,8 @@ test.describe('My Info Personal Details tests', () => {
 
       await myInfoPage.personalDetails.fillEmployeeName(name);
       await myInfoPage.personalDetails.expectEmployeeName(name);
-      const requestData = await myInfoPage.personalDetails.savePersonalDetails();
+      const requestData =
+        await myInfoPage.personalDetails.savePersonalDetails();
 
       expect(requestData).toMatchObject(name);
     });
@@ -42,7 +43,8 @@ test.describe('My Info Personal Details tests', () => {
 
       await myInfoPage.personalDetails.fillIdentifiers(identifiers);
       await myInfoPage.personalDetails.expectIdentifiers(identifiers);
-      const requestData = await myInfoPage.personalDetails.savePersonalDetails();
+      const requestData =
+        await myInfoPage.personalDetails.savePersonalDetails();
 
       expect(requestData).toMatchObject(identifiers);
     });
@@ -55,7 +57,8 @@ test.describe('My Info Personal Details tests', () => {
 
       await myInfoPage.personalDetails.fillDrivingLicense(license);
       await myInfoPage.personalDetails.expectDrivingLicense(license);
-      const requestData = await myInfoPage.personalDetails.savePersonalDetails();
+      const requestData =
+        await myInfoPage.personalDetails.savePersonalDetails();
 
       expect(requestData).toMatchObject({
         drivingLicenseNo: license.number,
@@ -71,7 +74,8 @@ test.describe('My Info Personal Details tests', () => {
 
       await myInfoPage.personalDetails.fillSelections(selections);
       await myInfoPage.personalDetails.expectSelections(selections);
-      const requestData = await myInfoPage.personalDetails.savePersonalDetails();
+      const requestData =
+        await myInfoPage.personalDetails.savePersonalDetails();
 
       expect(requestData).toMatchObject({
         maritalStatus: selections.maritalStatus,

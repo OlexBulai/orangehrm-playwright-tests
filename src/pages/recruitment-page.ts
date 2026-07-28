@@ -15,8 +15,38 @@ export default class RecruitmentPage {
     return this.page.getByText('Required');
   }
 
+  get candidatesHeading() {
+    return this.page.getByRole('heading', { name: 'Candidates', exact: true });
+  }
+
+  get candidateNameInput() {
+    return this.page.getByPlaceholder('Type for hints...');
+  }
+
+  get searchButton() {
+    return this.page.getByRole('button', { name: 'Search' });
+  }
+
+  get resetButton() {
+    return this.page.getByRole('button', { name: 'Reset' });
+  }
+
+  get fromDateInput() {
+    return this.page.getByPlaceholder('From');
+  }
+
   async open() {
     await this.page.getByRole('link', { name: 'Recruitment' }).click();
+  }
+
+  async searchCandidates() {
+    const responsePromise = this.page.waitForResponse(
+      (response) =>
+        response.request().method() === 'GET' &&
+        response.url().includes('/api/v2/recruitment/candidates'),
+    );
+    await this.searchButton.click();
+    return responsePromise;
   }
 
   async openAddCandidatePage() {
@@ -49,11 +79,7 @@ export default class RecruitmentPage {
       .fill(email);
   }
 
-  async addCandidate(
-    firstName: string,
-    lastName: string,
-    email: string,
-  ) {
+  async addCandidate(firstName: string, lastName: string, email: string) {
     await this.fillCandidateForm(firstName, lastName, email);
     await this.selectFirstDropdownOption(0);
     await this.submitForm();

@@ -14,7 +14,9 @@ export default class AdminSectionsComponent {
 
   async openSection(section: AdminSection): Promise<void> {
     await this.page.getByRole('link', { name: 'Admin' }).click();
-    const navigation = this.page.getByRole('navigation', { name: 'Topbar Menu' });
+    const navigation = this.page.getByRole('navigation', {
+      name: 'Topbar Menu',
+    });
     if (section.group) {
       await navigation.getByText(section.group, { exact: true }).click();
       await this.page
@@ -24,9 +26,13 @@ export default class AdminSectionsComponent {
       await navigation.getByRole('link', { name: section.name }).click();
     }
     await expect(this.page).toHaveURL(section.url);
-    const content = section.contentRole === 'paragraph'
-      ? this.page.getByText(section.heading, { exact: true })
-      : this.page.getByRole('heading', { name: section.heading, exact: true });
+    const content =
+      section.contentRole === 'paragraph'
+        ? this.page.getByText(section.heading, { exact: true })
+        : this.page.getByRole('heading', {
+            name: section.heading,
+            exact: true,
+          });
     await expect(content).toBeVisible();
   }
 }

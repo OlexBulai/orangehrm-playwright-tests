@@ -38,7 +38,9 @@ export default class MembershipsComponent {
 
   constructor(readonly page: Page) {
     this.heading = page.getByRole('heading', { name: 'Assigned Memberships' });
-    this.attachmentsHeading = page.getByRole('heading', { name: 'Attachments' });
+    this.attachmentsHeading = page.getByRole('heading', {
+      name: 'Attachments',
+    });
     this.attachments = new AttachmentsComponent(page, 'membership');
   }
 
@@ -77,7 +79,9 @@ export default class MembershipsComponent {
     ];
     for (const column of columns) {
       await expect(
-        this.page.getByRole('columnheader', { name: column, exact: true }).first(),
+        this.page
+          .getByRole('columnheader', { name: column, exact: true })
+          .first(),
       ).toBeVisible();
     }
   }
@@ -129,7 +133,9 @@ export default class MembershipsComponent {
 
   async expectRecords(records: MembershipRecord[]) {
     const rows = this.heading
-      .locator('xpath=following::div[contains(@class,"orangehrm-container")][1]')
+      .locator(
+        'xpath=following::div[contains(@class,"orangehrm-container")][1]',
+      )
       .locator('.oxd-table-body .oxd-table-card');
     await expect(rows).toHaveCount(records.length);
     for (const record of records) {
@@ -137,7 +143,9 @@ export default class MembershipsComponent {
       await expect(row).toContainText(record.subscriptionPaidBy ?? '');
       await expect(row).toContainText(record.subscriptionFee ?? '');
       await expect(row).toContainText(record.currencyType?.name ?? '');
-      await expect(row).toContainText(toUiDate(record.subscriptionCommenceDate));
+      await expect(row).toContainText(
+        toUiDate(record.subscriptionCommenceDate),
+      );
       await expect(row).toContainText(toUiDate(record.subscriptionRenewalDate));
     }
   }

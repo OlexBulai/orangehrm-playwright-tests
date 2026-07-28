@@ -19,7 +19,8 @@ export default class EmploymentStatusApi {
   async createEmploymentStatus(data: EmploymentStatusData): Promise<number> {
     const response = await this.request.post(this.url, { data });
     expect(response.status()).toBe(200);
-    return ((await response.json()) as { data: EmploymentStatusRecord }).data.id;
+    return ((await response.json()) as { data: EmploymentStatusRecord }).data
+      .id;
   }
 
   async getEmploymentStatuses(): Promise<EmploymentStatusRecord[]> {

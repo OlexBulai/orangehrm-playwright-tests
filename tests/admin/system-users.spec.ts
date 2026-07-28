@@ -19,7 +19,7 @@ test.describe('OrangeHRM Admin System Users tests', () => {
     await adminPage.resetSearchFilters();
   });
 
-  test.describe('System User mutations', () => {
+  test.describe('System User mutations', { tag: '@mutation' }, () => {
     test.describe.configure({ mode: 'serial' });
     test.skip(
       ({ browserName }) => browserName !== 'chromium',

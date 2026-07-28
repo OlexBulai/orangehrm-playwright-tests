@@ -22,11 +22,7 @@ export const test = base.extend<DependentFixtures>({
     await use(new DependentApi(page.request));
   },
 
-  dependentCleanup: async (
-    { dependentApi, employeeId },
-    use,
-    testInfo,
-  ) => {
+  dependentCleanup: async ({ dependentApi, employeeId }, use, testInfo) => {
     const ids = new Set<number>();
     const cleanup: DependentCleanup = {
       track: (id) => ids.add(id),
@@ -53,13 +49,7 @@ export const test = base.extend<DependentFixtures>({
   },
 
   dependentSetup: async (
-    {
-      page,
-      myInfoPage,
-      dependentApi,
-      employeeId,
-      dependentCleanup,
-    },
+    { page, myInfoPage, dependentApi, employeeId, dependentCleanup },
     use,
   ) => {
     await use({

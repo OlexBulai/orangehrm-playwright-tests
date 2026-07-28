@@ -25,14 +25,19 @@ export default class ReportToComponent {
   readonly attachmentsHeading: Locator;
 
   constructor(readonly page: Page) {
-    this.heading = page.getByRole('heading', { name: 'Report to', exact: true });
+    this.heading = page.getByRole('heading', {
+      name: 'Report to',
+      exact: true,
+    });
     this.supervisorsHeading = page.getByRole('heading', {
       name: 'Assigned Supervisors',
     });
     this.subordinatesHeading = page.getByRole('heading', {
       name: 'Assigned Subordinates',
     });
-    this.attachmentsHeading = page.getByRole('heading', { name: 'Attachments' });
+    this.attachmentsHeading = page.getByRole('heading', {
+      name: 'Attachments',
+    });
   }
 
   private tableAfter(heading: Locator): Locator {
@@ -67,12 +72,18 @@ export default class ReportToComponent {
 
   async expectReadOnly() {
     await expect(this.page.getByRole('button', { name: 'Add' })).toHaveCount(0);
-    await expect(this.page.locator('button:has(i.bi-pencil-fill)')).toHaveCount(0);
+    await expect(this.page.locator('button:has(i.bi-pencil-fill)')).toHaveCount(
+      0,
+    );
     await expect(this.page.locator('button:has(i.bi-trash)')).toHaveCount(0);
   }
 
   async expectSupervisors(relations: ReportingRelation[]) {
-    await this.expectRelations(this.supervisorsHeading, relations, 'supervisor');
+    await this.expectRelations(
+      this.supervisorsHeading,
+      relations,
+      'supervisor',
+    );
   }
 
   async expectSubordinates(relations: ReportingRelation[]) {

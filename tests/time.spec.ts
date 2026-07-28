@@ -1,7 +1,6 @@
 import { test, expect } from './fixtures/shared/authenticated.fixture';
 import TimePage from '../src/pages/time-page';
 
-
 test.describe('Time Page', () => {
   let timePage: TimePage;
 
@@ -40,5 +39,26 @@ test.describe('Time Page', () => {
     await timePage.goToNextTimesheetPeriod();
 
     await expect(timePage.timesheetPeriodValue).not.toHaveValue(currentPeriod);
+  });
+
+  test('Admin can open Attendance Employee Records', async ({ page }) => {
+    await timePage.open();
+    await timePage.openAttendanceEmployeeRecords();
+
+    await expect(
+      page.getByRole('heading', {
+        name: 'Employee Attendance Records',
+        exact: true,
+      }),
+    ).toBeVisible();
+  });
+
+  test('Admin can open Project Customers', async ({ page }) => {
+    await timePage.open();
+    await timePage.openProjectCustomers();
+
+    await expect(
+      page.getByRole('heading', { name: 'Customers', exact: true }),
+    ).toBeVisible();
   });
 });

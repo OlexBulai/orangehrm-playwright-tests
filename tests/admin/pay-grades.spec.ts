@@ -24,7 +24,7 @@ test.describe('OrangeHRM Admin Pay Grades tests', () => {
     await payGrades.expectRecords(await payGradesApi.getPayGrades());
   });
 
-  test.describe('Pay Grade mutations', () => {
+  test.describe('Pay Grade mutations', { tag: '@mutation' }, () => {
     test.describe.configure({ mode: 'serial' });
     test.skip(
       ({ browserName }) => browserName !== 'chromium',

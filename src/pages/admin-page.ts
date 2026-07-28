@@ -1,5 +1,5 @@
 import { expect, Locator, Page } from '@playwright/test';
-import { exactLabel, inputGroup, selectDropdownOption } from './components/form-controls';
+import { inputGroup, selectDropdownOption } from './components/form-controls';
 import type { SystemUserData } from './api/admin-api';
 
 type SystemUserUiData = SystemUserData & {
@@ -53,7 +53,9 @@ export default class AdminPage {
 
   async addSystemUser(data: SystemUserUiData) {
     await this.addButton.click();
-    await expect(this.page.getByRole('heading', { name: 'Add User' })).toBeVisible();
+    await expect(
+      this.page.getByRole('heading', { name: 'Add User' }),
+    ).toBeVisible();
     await this.fillUserForm(data);
     const responsePromise = this.waitForUserResponse('POST');
     await this.page.getByRole('button', { name: 'Save' }).click();
@@ -63,7 +65,9 @@ export default class AdminPage {
   }
 
   async editSystemUserStatus(username: string, status: 'Enabled' | 'Disabled') {
-    await this.userRow(username).locator('button:has(i.bi-pencil-fill)').click();
+    await this.userRow(username)
+      .locator('button:has(i.bi-pencil-fill)')
+      .click();
     await expect(this.page).toHaveURL(/admin\/saveSystemUser\/\d+/);
     await expect(
       this.page.getByRole('heading', { name: 'Edit User' }),
@@ -100,10 +104,17 @@ export default class AdminPage {
   }
 
   private async fillUserForm(data: SystemUserUiData) {
-    await selectDropdownOption(this.page, this.dropdown('User Role'), data.role);
+    await selectDropdownOption(
+      this.page,
+      this.dropdown('User Role'),
+      data.role,
+    );
     await selectDropdownOption(this.page, this.dropdown('Status'), data.status);
     await this.input('Employee Name').fill(data.employeeName);
-    await this.page.getByRole('option').filter({ hasText: data.employeeName }).click();
+    await this.page
+      .getByRole('option')
+      .filter({ hasText: data.employeeName })
+      .click();
     await this.input('Username').fill(data.username);
     await this.input('Password').fill(data.password);
     await this.input('Confirm Password').fill(data.password);

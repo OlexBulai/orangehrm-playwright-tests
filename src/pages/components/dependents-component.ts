@@ -1,8 +1,5 @@
 import { expect, Locator, Page } from '@playwright/test';
-import {
-  exactLabel,
-  inputGroup,
-} from './form-controls';
+import { exactLabel, inputGroup } from './form-controls';
 
 export type DependentData = {
   name: string;
@@ -76,7 +73,9 @@ export default class DependentsComponent {
 
   async expectFormValues(data: DependentData) {
     await expect(this.input('Name')).toHaveValue(data.name);
-    await expect(this.relationshipSelect()).toContainText(data.relationshipType);
+    await expect(this.relationshipSelect()).toContainText(
+      data.relationshipType,
+    );
     if (data.relationshipType === 'Other') {
       await expect(this.input('Please Specify')).toHaveValue(
         data.relationship ?? '',
@@ -111,7 +110,9 @@ export default class DependentsComponent {
   }
 
   async editDependent(currentName: string, data: DependentData) {
-    await this.getRow(currentName).locator('button:has(i.bi-pencil-fill)').click();
+    await this.getRow(currentName)
+      .locator('button:has(i.bi-pencil-fill)')
+      .click();
     await expect(this.form()).toBeVisible();
     await this.fill(data);
     await this.expectFormValues(data);
@@ -135,7 +136,7 @@ export default class DependentsComponent {
     const row = this.getRow(data.name);
     await expect(row).toBeVisible({ timeout: 15_000 });
     const relationship =
-      data.relationshipType === 'Child' ? 'Child' : data.relationship ?? '';
+      data.relationshipType === 'Child' ? 'Child' : (data.relationship ?? '');
     await expect(row).toContainText(relationship);
   }
 

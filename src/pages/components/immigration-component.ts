@@ -1,9 +1,5 @@
 import { expect, Locator, Page } from '@playwright/test';
-import {
-  exactLabel,
-  inputGroup,
-  selectDropdownOption,
-} from './form-controls';
+import { exactLabel, inputGroup, selectDropdownOption } from './form-controls';
 
 export type ImmigrationDocumentData = {
   documentType: 'Passport' | 'Visa';
@@ -136,8 +132,13 @@ export default class ImmigrationComponent {
     return this.save('POST');
   }
 
-  async editImmigrationDocument(currentNumber: string, data: ImmigrationDocumentData) {
-    await this.getRow(currentNumber).locator('button:has(i.bi-pencil-fill)').click();
+  async editImmigrationDocument(
+    currentNumber: string,
+    data: ImmigrationDocumentData,
+  ) {
+    await this.getRow(currentNumber)
+      .locator('button:has(i.bi-pencil-fill)')
+      .click();
     await expect(this.form()).toBeVisible();
     await this.fill(data);
     await this.expectFormValues(data);

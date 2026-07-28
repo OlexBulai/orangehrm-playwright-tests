@@ -36,10 +36,7 @@ export const test = base.extend<{
     }
   },
 
-  createPayGradeThroughApi: async (
-    { payGradesApi, payGradeCleanup },
-    use,
-  ) => {
+  createPayGradeThroughApi: async ({ payGradesApi, payGradeCleanup }, use) => {
     await use(async (data) => {
       const id = await payGradesApi.createPayGrade(data);
       payGradeCleanup.track(id);

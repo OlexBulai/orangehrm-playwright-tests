@@ -29,7 +29,10 @@ export default class JobCategoriesApi {
     const record = (await this.getJobCategories()).find(
       (category) => category.name === name,
     );
-    expect(record, `Job Category "${name}" was not returned by API`).toBeDefined();
+    expect(
+      record,
+      `Job Category "${name}" was not returned by API`,
+    ).toBeDefined();
     return record!.id;
   }
 

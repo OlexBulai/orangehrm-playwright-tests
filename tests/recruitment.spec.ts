@@ -11,6 +11,30 @@ test.describe('Recruitment Page', () => {
     recruitmentPage = new RecruitmentPage(page);
   });
 
+  test('Admin can open Candidates list', async () => {
+    await recruitmentPage.open();
+
+    await expect(recruitmentPage.candidatesHeading).toBeVisible();
+    await expect(recruitmentPage.searchButton).toBeVisible();
+    await expect(recruitmentPage.resetButton).toBeVisible();
+  });
+
+  test('Admin can search Candidates without changing data', async () => {
+    await recruitmentPage.open();
+
+    expect((await recruitmentPage.searchCandidates()).ok()).toBeTruthy();
+  });
+
+  test('Admin can reset Candidate filters', async () => {
+    await recruitmentPage.open();
+    await recruitmentPage.fromDateInput.fill('2025-01-01');
+    await expect(recruitmentPage.fromDateInput).toHaveValue('2025-01-01');
+
+    await recruitmentPage.resetButton.click();
+
+    await expect(recruitmentPage.fromDateInput).toHaveValue('');
+  });
+
   test('Admin cannot create candidate without required fields', async () => {
     await recruitmentPage.openAddCandidatePage();
     await expect(recruitmentPage.addCandidateHeading).toBeVisible();
@@ -18,7 +42,7 @@ test.describe('Recruitment Page', () => {
     await expect(recruitmentPage.requiredMessages).toHaveCount(4);
   });
 
-  test('Admin can add candidate', async ({ page }) => {
+  test('Admin can add candidate', { tag: '@mutation' }, async ({ page }) => {
     const firstName = faker.person.firstName();
     const lastName = faker.person.lastName();
     const email = faker.internet.email({ firstName, lastName });
@@ -33,11 +57,7 @@ test.describe('Recruitment Page', () => {
           response.request().method() === 'POST' &&
           response.url().endsWith('/api/v2/recruitment/candidates'),
       );
-      await recruitmentPage.addCandidate(
-        firstName,
-        lastName,
-        email,
-      );
+      await recruitmentPage.addCandidate(firstName, lastName, email);
       const createResponse = await createResponsePromise;
       expect(createResponse.status()).toBe(200);
       const body = (await createResponse.json()) as { data: { id: number } };

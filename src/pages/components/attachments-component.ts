@@ -69,10 +69,7 @@ export default class AttachmentsComponent {
     await this.saveAttachmentButton.click();
   }
 
-  async addAttachment(
-    file: AttachmentData,
-    comment: string,
-  ): Promise<void> {
+  async addAttachment(file: AttachmentData, comment: string): Promise<void> {
     await this.openAddForm();
     await this.selectFile(file);
     await this.fillComment(comment);

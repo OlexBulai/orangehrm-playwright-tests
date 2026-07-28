@@ -68,9 +68,7 @@ export default class MyInfoPage {
 
   async openMyInfo() {
     await this.myInfoLink.click();
-    await expect(this.page).toHaveURL(
-      /viewPersonalDetails\/empNumber\/\d+/,
-    );
+    await expect(this.page).toHaveURL(/viewPersonalDetails\/empNumber\/\d+/);
   }
   getEmployeeId(): string {
     const employeeId = this.page.url().match(/empNumber\/(\d+)/)?.[1];
@@ -87,9 +85,7 @@ export default class MyInfoPage {
     const responsePromise = this.page.waitForResponse(
       (response) =>
         response.request().method() === 'GET' &&
-        /\/api\/v2\/pim\/employee\/\d+\/contact-details$/.test(
-          response.url(),
-        ),
+        /\/api\/v2\/pim\/employee\/\d+\/contact-details$/.test(response.url()),
     );
     await this.contactDetailsLink.click();
     const response = await responsePromise;
@@ -144,5 +140,4 @@ export default class MyInfoPage {
     await this.membershipLink.click();
     await this.memberships.expectVisible();
   }
-
 }

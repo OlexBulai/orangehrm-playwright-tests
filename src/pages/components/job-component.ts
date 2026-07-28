@@ -23,7 +23,9 @@ export default class JobComponent {
 
   constructor(readonly page: Page) {
     this.heading = page.getByRole('heading', { name: 'Job Details' });
-    this.attachmentsHeading = page.getByRole('heading', { name: 'Attachments' });
+    this.attachmentsHeading = page.getByRole('heading', {
+      name: 'Attachments',
+    });
     this.contractSwitch = page.locator('.oxd-switch-input');
   }
 
@@ -60,7 +62,9 @@ export default class JobComponent {
 
   async expectJobDetailsReadOnly() {
     await expect(this.field('Joined Date').locator('input')).toBeDisabled();
-    await expect(this.page.locator('.oxd-select-text--disabled')).toHaveCount(5);
+    await expect(this.page.locator('.oxd-select-text--disabled')).toHaveCount(
+      5,
+    );
   }
 
   async showContractDetails() {
@@ -85,5 +89,4 @@ export default class JobComponent {
     await expect(this.field('Contract Start Date')).toBeHidden();
     await expect(this.field('Contract End Date')).toBeHidden();
   }
-
 }

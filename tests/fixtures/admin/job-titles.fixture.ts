@@ -36,10 +36,7 @@ export const test = base.extend<{
     }
   },
 
-  createJobTitleThroughApi: async (
-    { jobTitlesApi, jobTitleCleanup },
-    use,
-  ) => {
+  createJobTitleThroughApi: async ({ jobTitlesApi, jobTitleCleanup }, use) => {
     await use(async (data) => {
       const id = await jobTitlesApi.createJobTitle(data);
       jobTitleCleanup.track(id);

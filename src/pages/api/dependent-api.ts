@@ -24,7 +24,7 @@ export default class DependentApi {
         name: data.name,
         relationshipType: data.relationshipType.toLowerCase(),
         relationship:
-          data.relationshipType === 'Other' ? data.relationship ?? '' : '',
+          data.relationshipType === 'Other' ? (data.relationship ?? '') : '',
         dateOfBirth: toApiDate(data.dateOfBirth),
       },
     });

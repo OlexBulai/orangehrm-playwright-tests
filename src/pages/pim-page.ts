@@ -6,6 +6,7 @@ export default class PimPage {
   readonly employeeNameInput: Locator;
   readonly searchEmployeeIdInput: Locator;
   readonly searchButton: Locator;
+  readonly resetButton: Locator;
   readonly addButton: Locator;
   readonly firstNameInput: Locator;
   readonly lastNameInput: Locator;
@@ -19,6 +20,7 @@ export default class PimPage {
     this.employeeNameInput = page.getByPlaceholder('Type for hints...').first();
     this.searchEmployeeIdInput = page.locator('.oxd-input').nth(1);
     this.searchButton = page.getByRole('button', { name: 'Search' });
+    this.resetButton = page.getByRole('button', { name: 'Reset' });
     this.addButton = page.getByRole('button', { name: 'Add' });
     this.firstNameInput = page.getByPlaceholder('First Name');
     this.lastNameInput = page.getByPlaceholder('Last Name');
@@ -43,6 +45,15 @@ export default class PimPage {
 
   async clickSearchButton() {
     await this.searchButton.click();
+  }
+  async searchEmployees() {
+    const responsePromise = this.page.waitForResponse(
+      (response) =>
+        response.request().method() === 'GET' &&
+        response.url().includes('/api/v2/pim/employees'),
+    );
+    await this.searchButton.click();
+    return responsePromise;
   }
 
   async clickAddButton() {

@@ -14,5 +14,4 @@ export default class JobApi {
     expect(response.status()).toBe(200);
     return ((await response.json()) as JobDetailsResponse).data;
   }
-
 }

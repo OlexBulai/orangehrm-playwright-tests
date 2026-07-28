@@ -1,11 +1,11 @@
 import { randomUUID } from 'crypto';
-import { expect, test } from '../fixtures/my-info/attachments.fixture';
+import { test } from '../fixtures/my-info/attachments.fixture';
 import {
   createAttachmentFile,
   verifyDownloadedAttachment,
 } from '../helpers/my-info/attachment-test-helpers';
 
-test.describe('My Info attachment tests', () => {
+test.describe('My Info attachment tests', { tag: '@mutation' }, () => {
   test.describe.configure({ mode: 'serial' });
   test('User can add attachment', async ({ myInfoPage, attachmentCleanup }) => {
     const file = createAttachmentFile({

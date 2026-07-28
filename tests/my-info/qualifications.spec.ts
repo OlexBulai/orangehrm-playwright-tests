@@ -17,7 +17,7 @@ test.describe('My Info Qualifications tests', () => {
     await myInfoPage.qualifications.expectVisible();
   });
 
-  test.describe('Qualifications mutations', () => {
+  test.describe('Qualifications mutations', { tag: '@mutation' }, () => {
     test.describe.configure({ mode: 'serial' });
     test.skip(
       ({ browserName }) => browserName !== 'chromium',
@@ -41,7 +41,10 @@ test.describe('My Info Qualifications tests', () => {
       employeeId,
     }) => {
       const original = createWorkExperience('original');
-      const id = await qualificationsApi.createWorkExperience(employeeId, original);
+      const id = await qualificationsApi.createWorkExperience(
+        employeeId,
+        original,
+      );
       qualificationsCleanup.trackWork(id);
       await page.reload();
       const updated = {

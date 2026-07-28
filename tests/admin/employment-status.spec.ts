@@ -31,7 +31,7 @@ test.describe('OrangeHRM Admin Employment Status tests', () => {
     );
   });
 
-  test.describe('Employment Status mutations', () => {
+  test.describe('Employment Status mutations', { tag: '@mutation' }, () => {
     test.describe.configure({ mode: 'serial' });
     test.skip(
       ({ browserName }) => browserName !== 'chromium',
@@ -82,9 +82,7 @@ test.describe('OrangeHRM Admin Employment Status tests', () => {
       employmentStatusCleanup.forget(id);
     });
 
-    test('Employment Status name is required', async ({
-      employmentStatus,
-    }) => {
+    test('Employment Status name is required', async ({ employmentStatus }) => {
       await employmentStatus.expectRequiredNameValidation();
     });
   });

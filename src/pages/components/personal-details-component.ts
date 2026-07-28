@@ -54,15 +54,30 @@ export default class PersonalDetailsComponent {
   }
 
   async fillEmployeeName(data: EmployeeName) {
-    await replaceInputValue(this.page.locator('input[name="firstName"]'), data.firstName);
-    await replaceInputValue(this.page.locator('input[name="middleName"]'), data.middleName);
-    await replaceInputValue(this.page.locator('input[name="lastName"]'), data.lastName);
+    await replaceInputValue(
+      this.page.locator('input[name="firstName"]'),
+      data.firstName,
+    );
+    await replaceInputValue(
+      this.page.locator('input[name="middleName"]'),
+      data.middleName,
+    );
+    await replaceInputValue(
+      this.page.locator('input[name="lastName"]'),
+      data.lastName,
+    );
   }
 
   async expectEmployeeName(data: EmployeeName) {
-    await expect(this.page.locator('input[name="firstName"]')).toHaveValue(data.firstName);
-    await expect(this.page.locator('input[name="middleName"]')).toHaveValue(data.middleName);
-    await expect(this.page.locator('input[name="lastName"]')).toHaveValue(data.lastName);
+    await expect(this.page.locator('input[name="firstName"]')).toHaveValue(
+      data.firstName,
+    );
+    await expect(this.page.locator('input[name="middleName"]')).toHaveValue(
+      data.middleName,
+    );
+    await expect(this.page.locator('input[name="lastName"]')).toHaveValue(
+      data.lastName,
+    );
   }
 
   async fillIdentifiers(data: EmployeeIdentifiers) {
@@ -81,8 +96,12 @@ export default class PersonalDetailsComponent {
   }
 
   async expectDrivingLicense(data: DrivingLicenseDetails) {
-    await expect(this.input("Driver's License Number")).toHaveValue(data.number);
-    await expect(this.input('License Expiry Date')).toHaveValue(data.expiryDate);
+    await expect(this.input("Driver's License Number")).toHaveValue(
+      data.number,
+    );
+    await expect(this.input('License Expiry Date')).toHaveValue(
+      data.expiryDate,
+    );
   }
 
   async fillSelections(data: PersonalSelections) {
@@ -105,16 +124,22 @@ export default class PersonalDetailsComponent {
     if (data.nationality !== undefined) {
       await expect(this.select('Nationality')).toContainText(data.nationality);
     }
-    await expect(this.select('Marital Status')).toContainText(data.maritalStatus);
+    await expect(this.select('Marital Status')).toContainText(
+      data.maritalStatus,
+    );
     const genderValue = data.gender === 'Male' ? '1' : '2';
-    await expect(this.form.locator(`input[type="radio"][value="${genderValue}"]`)).toBeChecked();
+    await expect(
+      this.form.locator(`input[type="radio"][value="${genderValue}"]`),
+    ).toBeChecked();
   }
 
   async savePersonalDetails(): Promise<Record<string, unknown>> {
     const responsePromise = this.page.waitForResponse(
       (response) =>
         response.request().method() === 'PUT' &&
-        /\/api\/v2\/pim\/employees\/\d+\/personal-details$/.test(response.url()),
+        /\/api\/v2\/pim\/employees\/\d+\/personal-details$/.test(
+          response.url(),
+        ),
     );
     await this.form.getByRole('button', { name: 'Save' }).click();
     const response = await responsePromise;
@@ -139,5 +164,4 @@ export default class PersonalDetailsComponent {
       this.form.locator('.oxd-input-field-error-message'),
     ).toHaveText(['Required', 'Required']);
   }
-
 }

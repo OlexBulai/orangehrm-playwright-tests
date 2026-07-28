@@ -1,6 +1,8 @@
 import { defineConfig, devices } from '@playwright/test';
 
 const authFile = 'playwright/.auth/user.json';
+const requestedCiWorkers = Number.parseInt(process.env.CI_WORKERS ?? '4', 10);
+const ciWorkers = requestedCiWorkers > 0 ? requestedCiWorkers : 4;
 
 /**
  * Read environment variables from file.
@@ -21,14 +23,9 @@ export default defineConfig({
   forbidOnly: !!process.env.CI,
   /* Retry on CI only */
   retries: 0,
-  workers: process.env.CI ? 2 : 1,
+  workers: process.env.CI ? ciWorkers : 1,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
-  reporter: process.env.CI
-    ? [
-        ['line'],
-        ['html', { open: 'never' }],
-      ]
-    : 'html',
+  reporter: process.env.CI ? [['line'], ['html', { open: 'never' }]] : 'html',
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
     /* Base URL to use in actions like `await page.goto('')`. */
@@ -59,38 +56,6 @@ export default defineConfig({
         storageState: process.env.CI ? authFile : undefined,
       },
     },
-
-    {
-      name: 'firefox',
-      testIgnore: /.*\.setup\.ts/,
-      use: { ...devices['Desktop Firefox'] },
-    },
-
-    {
-      name: 'webkit',
-      testIgnore: /.*\.setup\.ts/,
-      use: { ...devices['Desktop Safari'] },
-    },
-
-    /* Test against mobile viewports. */
-    // {
-    //   name: 'Mobile Chrome',
-    //   use: { ...devices['Pixel 5'] },
-    // },
-    // {
-    //   name: 'Mobile Safari',
-    //   use: { ...devices['iPhone 12'] },
-    // },
-
-    /* Test against branded browsers. */
-    // {
-    //   name: 'Microsoft Edge',
-    //   use: { ...devices['Desktop Edge'], channel: 'msedge' },
-    // },
-    // {
-    //   name: 'Google Chrome',
-    //   use: { ...devices['Desktop Chrome'], channel: 'chrome' },
-    // },
   ],
 
   /* Run your local dev server before starting the tests */

@@ -11,12 +11,7 @@ type CreateAttachmentResponse = {
 type AttachmentListResponse = { meta: { total: number } };
 
 export type AttachmentScreen =
-  | 'personal'
-  | 'job'
-  | 'salary'
-  | 'report-to'
-  | 'qualifications'
-  | 'membership';
+  'personal' | 'job' | 'salary' | 'report-to' | 'qualifications' | 'membership';
 
 export type AttachmentRecord = {
   id: number;
@@ -36,24 +31,21 @@ export default class AttachmentApi {
     file: AttachmentData,
     screen: AttachmentScreen = 'personal',
   ) {
-    const response = await this.request.post(
-      this.url(employeeId, screen),
-      {
-        headers: {
-          Accept: 'application/json',
-          'Content-Type': 'application/json',
-        },
-        data: {
-          attachment: {
-            name: file.name,
-            type: file.type,
-            size: file.buffer.length,
-            base64: file.buffer.toString('base64'),
-          },
-          description: file.description ?? '',
-        },
+    const response = await this.request.post(this.url(employeeId, screen), {
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
       },
-    );
+      data: {
+        attachment: {
+          name: file.name,
+          type: file.type,
+          size: file.buffer.length,
+          base64: file.buffer.toString('base64'),
+        },
+        description: file.description ?? '',
+      },
+    });
 
     expect(response.status()).toBe(200);
     const responseBody = (await response.json()) as CreateAttachmentResponse;
@@ -65,16 +57,13 @@ export default class AttachmentApi {
     attachmentId: number,
     screen: AttachmentScreen = 'personal',
   ) {
-    const response = await this.request.delete(
-      this.url(employeeId, screen),
-      {
-        headers: {
-          Accept: 'application/json',
-          'Content-Type': 'application/json',
-        },
-        data: { ids: [attachmentId] },
+    const response = await this.request.delete(this.url(employeeId, screen), {
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
       },
-    );
+      data: { ids: [attachmentId] },
+    });
 
     expect(response.status()).toBe(200);
   }

@@ -10,7 +10,7 @@ test.describe('My Info Emergency Contacts tests', () => {
     );
   });
 
-  test.describe('Emergency Contact mutations', () => {
+  test.describe('Emergency Contact mutations', { tag: '@mutation' }, () => {
     test.describe.configure({ mode: 'serial' });
     test.skip(
       ({ browserName }) => browserName !== 'chromium',
@@ -27,7 +27,8 @@ test.describe('My Info Emergency Contacts tests', () => {
     }) => {
       const contact = createEmergencyContact();
 
-      const saved = await myInfoPage.emergencyContacts.addEmergencyContact(contact);
+      const saved =
+        await myInfoPage.emergencyContacts.addEmergencyContact(contact);
       emergencyContactCleanup.track(Number(saved.data.id));
 
       await myInfoPage.emergencyContacts.expectContact(contact);

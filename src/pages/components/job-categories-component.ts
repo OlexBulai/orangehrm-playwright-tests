@@ -24,7 +24,9 @@ export default class JobCategoriesComponent {
 
   async openJobCategories(): Promise<void> {
     await this.page.getByRole('link', { name: 'Admin' }).click();
-    const navigation = this.page.getByRole('navigation', { name: 'Topbar Menu' });
+    const navigation = this.page.getByRole('navigation', {
+      name: 'Topbar Menu',
+    });
     await navigation.getByText('Job', { exact: true }).click();
     await this.page.getByRole('menuitem', { name: 'Job Categories' }).click();
     await expect(this.page).toHaveURL(/admin\/jobCategory/);
@@ -83,11 +85,15 @@ export default class JobCategoriesComponent {
     await this.page.getByRole('button', { name: 'Add' }).click();
     await this.waitForForm('Add Job Category');
     await this.page.getByRole('button', { name: 'Save' }).click();
-    await expect(inputGroup(this.page, 'Name').getByText('Required')).toBeVisible();
+    await expect(
+      inputGroup(this.page, 'Name').getByText('Required'),
+    ).toBeVisible();
   }
 
   private async waitForForm(heading: string): Promise<void> {
-    await expect(this.page.getByRole('heading', { name: heading })).toBeVisible();
+    await expect(
+      this.page.getByRole('heading', { name: heading }),
+    ).toBeVisible();
     await expect(this.page.locator('.oxd-form-loader')).toBeHidden();
   }
 

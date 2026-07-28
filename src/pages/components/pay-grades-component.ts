@@ -81,11 +81,15 @@ export default class PayGradesComponent {
     await this.page.getByRole('button', { name: 'Add' }).click();
     await this.waitForForm('Add Pay Grade');
     await this.page.getByRole('button', { name: 'Save' }).click();
-    await expect(inputGroup(this.page, 'Name').getByText('Required')).toBeVisible();
+    await expect(
+      inputGroup(this.page, 'Name').getByText('Required'),
+    ).toBeVisible();
   }
 
   private async waitForForm(heading: string): Promise<void> {
-    await expect(this.page.getByRole('heading', { name: heading })).toBeVisible();
+    await expect(
+      this.page.getByRole('heading', { name: heading }),
+    ).toBeVisible();
     await expect(this.page.locator('.oxd-form-loader')).toBeHidden();
   }
 

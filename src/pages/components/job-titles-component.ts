@@ -60,7 +60,9 @@ export default class JobTitlesComponent {
   }
 
   async editJobTitle(currentTitle: string, data: JobTitleData) {
-    await this.row(currentTitle).locator('button:has(i.bi-pencil-fill)').click();
+    await this.row(currentTitle)
+      .locator('button:has(i.bi-pencil-fill)')
+      .click();
     await expect(this.page).toHaveURL(/admin\/saveJobTitle\/\d+/);
     await this.waitForForm('Edit Job Title');
     await this.fillForm(data);
@@ -78,10 +80,7 @@ export default class JobTitlesComponent {
     await expect(row).toBeHidden();
   }
 
-  async expectJobTitle(data: {
-    title: string;
-    description: string | null;
-  }) {
+  async expectJobTitle(data: { title: string; description: string | null }) {
     const row = this.row(data.title);
     await expect(row).toBeVisible();
     if (data.description) {
@@ -101,13 +100,17 @@ export default class JobTitlesComponent {
     await this.page.getByRole('button', { name: 'Add' }).click();
     await this.waitForForm('Add Job Title');
     await this.page.getByRole('button', { name: 'Save' }).click();
-    await expect(inputGroup(this.page, 'Job Title').getByText('Required')).toBeVisible();
+    await expect(
+      inputGroup(this.page, 'Job Title').getByText('Required'),
+    ).toBeVisible();
   }
 
   private async waitForForm(heading: string) {
-    await expect(this.page.getByRole('heading', { name: heading })).toBeVisible({
-      timeout: 20_000,
-    });
+    await expect(this.page.getByRole('heading', { name: heading })).toBeVisible(
+      {
+        timeout: 20_000,
+      },
+    );
     await expect(this.page.locator('.oxd-form-loader')).toBeHidden({
       timeout: 30_000,
     });

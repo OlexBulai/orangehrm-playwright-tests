@@ -89,11 +89,15 @@ export default class EmploymentStatusComponent {
     await this.page.getByRole('button', { name: 'Add' }).click();
     await this.waitForForm('Add Employment Status');
     await this.page.getByRole('button', { name: 'Save' }).click();
-    await expect(inputGroup(this.page, 'Name').getByText('Required')).toBeVisible();
+    await expect(
+      inputGroup(this.page, 'Name').getByText('Required'),
+    ).toBeVisible();
   }
 
   private async waitForForm(heading: string): Promise<void> {
-    await expect(this.page.getByRole('heading', { name: heading })).toBeVisible();
+    await expect(
+      this.page.getByRole('heading', { name: heading }),
+    ).toBeVisible();
     await expect(this.page.locator('.oxd-form-loader')).toBeHidden();
   }
 
@@ -101,9 +105,7 @@ export default class EmploymentStatusComponent {
     return this.page.waitForResponse(
       (response) =>
         response.request().method() === method &&
-        /\/api\/v2\/admin\/employment-statuses(?:\/\d+)?$/.test(
-          response.url(),
-        ),
+        /\/api\/v2\/admin\/employment-statuses(?:\/\d+)?$/.test(response.url()),
     );
   }
 }

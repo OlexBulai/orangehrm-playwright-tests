@@ -11,7 +11,7 @@ test.describe('My Info Dependents tests', () => {
     await expect(myInfoPage.page).toHaveURL(/viewDependents\/empNumber\/\d+/);
   });
 
-  test.describe('Dependent mutations', () => {
+  test.describe('Dependent mutations', { tag: '@mutation' }, () => {
     test.describe.configure({ mode: 'serial' });
     test.skip(
       ({ browserName }) => browserName !== 'chromium',
@@ -63,7 +63,10 @@ test.describe('My Info Dependents tests', () => {
       await dependentSetup.create(original);
       const updated = createOtherDependent();
 
-      const saved = await myInfoPage.dependents.editDependent(original.name, updated);
+      const saved = await myInfoPage.dependents.editDependent(
+        original.name,
+        updated,
+      );
 
       expect(saved.requestData).toMatchObject({
         name: updated.name,

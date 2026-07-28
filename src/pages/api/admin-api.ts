@@ -21,10 +21,17 @@ export type SystemUserRecord = {
 export default class AdminApi {
   constructor(private readonly request: APIRequestContext) {}
 
-  async createEmployee(firstName: string, lastName: string, employeeId: string) {
-    const response = await this.request.post(`${baseUrl}/api/v2/pim/employees`, {
-      data: { firstName, middleName: '', lastName, employeeId },
-    });
+  async createEmployee(
+    firstName: string,
+    lastName: string,
+    employeeId: string,
+  ) {
+    const response = await this.request.post(
+      `${baseUrl}/api/v2/pim/employees`,
+      {
+        data: { firstName, middleName: '', lastName, employeeId },
+      },
+    );
     expect(response.status()).toBe(200);
     return ((await response.json()) as { data: { empNumber: number } }).data
       .empNumber;
@@ -59,17 +66,23 @@ export default class AdminApi {
 
   async deleteSystemUsers(ids: number[]) {
     if (ids.length === 0) return;
-    const response = await this.request.delete(`${baseUrl}/api/v2/admin/users`, {
-      data: { ids },
-    });
+    const response = await this.request.delete(
+      `${baseUrl}/api/v2/admin/users`,
+      {
+        data: { ids },
+      },
+    );
     expect([200, 404]).toContain(response.status());
   }
 
   async deleteEmployees(ids: number[]) {
     if (ids.length === 0) return;
-    const response = await this.request.delete(`${baseUrl}/api/v2/pim/employees`, {
-      data: { ids },
-    });
+    const response = await this.request.delete(
+      `${baseUrl}/api/v2/pim/employees`,
+      {
+        data: { ids },
+      },
+    );
     expect(response.status()).toBe(200);
   }
 }

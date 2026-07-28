@@ -20,11 +20,7 @@ type MyInfoAttachmentsFixtures = {
 };
 
 export const test = base.extend<MyInfoAttachmentsFixtures>({
-  attachmentCleanup: async (
-    { attachmentApi, employeeId },
-    use,
-    testInfo,
-  ) => {
+  attachmentCleanup: async ({ attachmentApi, employeeId }, use, testInfo) => {
     const apiAttachmentIds = new Set<number>();
     const uiFileNames = new Set<string>();
     const cleanup: AttachmentCleanup = {
@@ -70,23 +66,14 @@ export const test = base.extend<MyInfoAttachmentsFixtures>({
         if (testAlreadyFailed) {
           console.error('Attachment cleanup failed:', cleanupErrors);
         } else {
-          throw new AggregateError(
-            cleanupErrors,
-            'Attachment cleanup failed',
-          );
+          throw new AggregateError(cleanupErrors, 'Attachment cleanup failed');
         }
       }
     }
   },
 
   attachmentSetup: async (
-    {
-      page,
-      myInfoPage,
-      attachmentApi,
-      employeeId,
-      attachmentCleanup,
-    },
+    { page, myInfoPage, attachmentApi, employeeId, attachmentCleanup },
     use,
   ) => {
     await use({

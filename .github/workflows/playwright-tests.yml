@@ -1,6 +1,11 @@
 name: Playwright Tests
 
 on:
+  push:
+    branches:
+      - main
+      - master
+  pull_request:
   workflow_dispatch:
     inputs:
       test_suite:
@@ -10,18 +15,23 @@ on:
         type: choice
         options:
           - all
+          - smoke
+          - readonly
+          - mutation
           - my-info
           - admin
 
+env:
+  USERNAME_LOGIN: ${{ secrets.USERNAME_LOGIN }}
+  PASSWORD_LOGIN: ${{ secrets.PASSWORD_LOGIN }}
+  BASE_URL: ${{ secrets.BASE_URL }}
+  CI_WORKERS: 4
+
 jobs:
-  test:
-    name: Run Playwright tests
-    timeout-minutes: 60
+  quality:
+    name: TypeScript check
+    timeout-minutes: 10
     runs-on: ubuntu-latest
-    env:
-      USERNAME_LOGIN: ${{ secrets.USERNAME_LOGIN }}
-      PASSWORD_LOGIN: ${{ secrets.PASSWORD_LOGIN }}
-      BASE_URL: ${{ secrets.BASE_URL }}
 
     steps:
       - name: Checkout repository
@@ -36,30 +46,114 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Show test environment
-        run: |
-          echo "Suite: ${{ inputs.test_suite }}"
-          node --version
-          npm --version
-          npx playwright --version
+      - name: Check TypeScript
+        run: npm run typecheck
+
+      - name: Check lint rules
+        run: npm run lint
+
+      - name: Check formatting
+        run: npm run format:check
+
+      - name: Verify test discovery
+        run: npm run test:list -- --project=chromium
+
+  smoke:
+    name: Chromium smoke tests
+    if: github.event_name == 'push' || github.event_name == 'pull_request'
+    needs: quality
+    timeout-minutes: 20
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
 
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
 
-      - name: Run all tests
+      - name: Run smoke tests
+        run: npm run test:smoke
+
+      - name: Upload Playwright report
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v5
+        with:
+          name: playwright-report-smoke
+          path: playwright-report/
+          retention-days: 14
+          if-no-files-found: warn
+
+      - name: Upload failure diagnostics
+        if: ${{ failure() }}
+        uses: actions/upload-artifact@v5
+        with:
+          name: test-results-smoke
+          path: test-results/
+          retention-days: 14
+          if-no-files-found: warn
+
+  selected-suite:
+    name: Run selected Playwright suite
+    if: github.event_name == 'workflow_dispatch'
+    needs: quality
+    timeout-minutes: 60
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Run smoke tests
+        if: ${{ inputs.test_suite == 'smoke' }}
+        run: npm run test:smoke
+
+      - name: Run read-only tests
+        if: ${{ inputs.test_suite == 'readonly' }}
+        run: npm run test:readonly
+
+      - name: Run mutation tests
+        if: ${{ inputs.test_suite == 'mutation' }}
+        run: npm run test:mutation
+
+      - name: Run all tests safely
         if: ${{ inputs.test_suite == 'all' }}
-        timeout-minutes: 50
-        run: npx playwright test --project=chromium
+        run: |
+          npm run test:readonly
+          npm run test:mutation
 
-      - name: Run My Info tests
+      - name: Run My Info tests safely
         if: ${{ inputs.test_suite == 'my-info' }}
-        timeout-minutes: 50
-        run: npx playwright test tests/my-info --project=chromium
+        run: |
+          npx playwright test tests/my-info --project=chromium --grep-invert @mutation
+          npx playwright test tests/my-info --project=chromium --grep @mutation --workers=1
 
-      - name: Run Admin tests
+      - name: Run Admin tests safely
         if: ${{ inputs.test_suite == 'admin' }}
-        timeout-minutes: 50
-        run: npx playwright test tests/admin --project=chromium
+        run: |
+          npx playwright test tests/admin --project=chromium --grep-invert @mutation
+          npx playwright test tests/admin --project=chromium --grep @mutation --workers=1
 
       - name: Upload Playwright report
         if: ${{ always() }}

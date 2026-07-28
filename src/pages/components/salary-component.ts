@@ -16,7 +16,9 @@ export default class SalaryComponent {
     this.heading = page.getByRole('heading', {
       name: 'Assigned Salary Components',
     });
-    this.attachmentsHeading = page.getByRole('heading', { name: 'Attachments' });
+    this.attachmentsHeading = page.getByRole('heading', {
+      name: 'Attachments',
+    });
   }
 
   private salaryTable(): Locator {
@@ -43,7 +45,9 @@ export default class SalaryComponent {
 
   async expectReadOnly() {
     await expect(this.page.getByRole('button', { name: 'Add' })).toHaveCount(0);
-    await expect(this.page.locator('button:has(i.bi-pencil-fill)')).toHaveCount(0);
+    await expect(this.page.locator('button:has(i.bi-pencil-fill)')).toHaveCount(
+      0,
+    );
     await expect(this.page.locator('button:has(i.bi-trash)')).toHaveCount(0);
   }
 

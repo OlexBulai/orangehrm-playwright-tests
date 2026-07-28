@@ -12,7 +12,7 @@ test.describe('My Info Contact Details tests', () => {
     await myInfoPage.contactDetails.expectVisible();
   });
 
-  test.describe('Contact Details update', () => {
+  test.describe('Contact Details update', { tag: '@mutation' }, () => {
     test.describe.configure({ mode: 'serial' });
     test.skip(
       ({ browserName }) => browserName !== 'chromium',

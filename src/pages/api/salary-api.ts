@@ -28,5 +28,4 @@ export default class SalaryApi {
     expect(response.status()).toBe(200);
     return ((await response.json()) as CustomFieldsResponse).meta.fields.length;
   }
-
 }

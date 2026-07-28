@@ -13,7 +13,9 @@ test.describe('OrangeHRM Admin Job Categories tests', () => {
     await expect(jobCategories.heading).toBeVisible();
   });
 
-  test('Job Categories table has expected columns', async ({ jobCategories }) => {
+  test('Job Categories table has expected columns', async ({
+    jobCategories,
+  }) => {
     await jobCategories.expectColumns();
   });
 
@@ -21,10 +23,12 @@ test.describe('OrangeHRM Admin Job Categories tests', () => {
     jobCategories,
     jobCategoriesApi,
   }) => {
-    await jobCategories.expectRecords(await jobCategoriesApi.getJobCategories());
+    await jobCategories.expectRecords(
+      await jobCategoriesApi.getJobCategories(),
+    );
   });
 
-  test.describe('Job Category mutations', () => {
+  test.describe('Job Category mutations', { tag: '@mutation' }, () => {
     test.describe.configure({ mode: 'serial' });
     test.skip(
       ({ browserName }) => browserName !== 'chromium',

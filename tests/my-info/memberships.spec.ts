@@ -16,20 +16,27 @@ test.describe('My Info Memberships tests', () => {
     await myInfoPage.memberships.expectColumns();
   });
 
-  test.describe('Memberships mutations', () => {
+  test.describe('Memberships mutations', { tag: '@mutation' }, () => {
     test.describe.configure({ mode: 'serial' });
     test.skip(
       ({ browserName }) => browserName !== 'chromium',
       'The shared demo employee must not be updated concurrently.',
     );
 
-    test('User can add a membership', async ({ myInfoPage, membershipsCleanup }) => {
+    test('User can add a membership', async ({
+      myInfoPage,
+      membershipsCleanup,
+    }) => {
       const id = await myInfoPage.memberships.addMembership(membershipData);
       membershipsCleanup.trackMembership(id);
     });
 
     test('User can edit a membership', async ({
-      page, myInfoPage, membershipsApi, membershipsCleanup, employeeId,
+      page,
+      myInfoPage,
+      membershipsApi,
+      membershipsCleanup,
+      employeeId,
     }) => {
       const id = await membershipsApi.create(employeeId, membershipData);
       membershipsCleanup.trackMembership(id);
@@ -41,7 +48,11 @@ test.describe('My Info Memberships tests', () => {
     });
 
     test('User can delete a membership', async ({
-      page, myInfoPage, membershipsApi, membershipsCleanup, employeeId,
+      page,
+      myInfoPage,
+      membershipsApi,
+      membershipsCleanup,
+      employeeId,
     }) => {
       const id = await membershipsApi.create(employeeId, membershipData);
       membershipsCleanup.trackMembership(id);
@@ -57,7 +68,10 @@ test.describe('My Info Memberships tests', () => {
     });
 
     test('User can add a Membership attachment', async ({
-      myInfoPage, attachmentApi, membershipsCleanup, employeeId,
+      myInfoPage,
+      attachmentApi,
+      membershipsCleanup,
+      employeeId,
     }) => {
       const file = createAttachmentFile({
         prefix: 'membership-ui',
@@ -72,19 +86,29 @@ test.describe('My Info Memberships tests', () => {
         comment: file.description,
       });
       const attachments = await attachmentApi.getAll(employeeId, 'membership');
-      const created = attachments.data.find((item) => item.filename === file.name);
+      const created = attachments.data.find(
+        (item) => item.filename === file.name,
+      );
       expect(created).toBeDefined();
       membershipsCleanup.trackAttachment(created!.id);
     });
 
     test('User can delete a Membership attachment', async ({
-      page, myInfoPage, attachmentApi, membershipsCleanup, employeeId,
+      page,
+      myInfoPage,
+      attachmentApi,
+      membershipsCleanup,
+      employeeId,
     }) => {
       const file = createAttachmentFile({
         prefix: 'membership-delete',
         description: 'Delete membership attachment',
       });
-      const id = await attachmentApi.createAttachment(employeeId, file, 'membership');
+      const id = await attachmentApi.createAttachment(
+        employeeId,
+        file,
+        'membership',
+      );
       membershipsCleanup.trackAttachment(id);
       await page.reload();
       await myInfoPage.memberships.attachments.deleteAttachment(file.name);
@@ -93,7 +117,9 @@ test.describe('My Info Memberships tests', () => {
   });
 
   test('Membership table matches API data', async ({
-    myInfoPage, membershipsApi, employeeId,
+    myInfoPage,
+    membershipsApi,
+    employeeId,
   }) => {
     await myInfoPage.memberships.expectRecords(
       await membershipsApi.getAll(employeeId),
@@ -101,16 +127,23 @@ test.describe('My Info Memberships tests', () => {
   });
 
   test('Membership custom fields API is available', async ({
-    membershipsApi, employeeId,
+    membershipsApi,
+    employeeId,
   }) => {
-    expect(await membershipsApi.getCustomFieldCount(employeeId)).toBeGreaterThanOrEqual(0);
+    expect(
+      await membershipsApi.getCustomFieldCount(employeeId),
+    ).toBeGreaterThanOrEqual(0);
   });
 
   test('Membership attachments match API data', async ({
-    myInfoPage, attachmentApi, employeeId,
+    myInfoPage,
+    attachmentApi,
+    employeeId,
   }) => {
     const attachments = await attachmentApi.getAll(employeeId, 'membership');
-    await myInfoPage.memberships.attachments.expectCount(attachments.meta.total);
+    await myInfoPage.memberships.attachments.expectCount(
+      attachments.meta.total,
+    );
     for (const item of attachments.data) {
       await myInfoPage.memberships.attachments.expectAttachment({
         fileName: item.filename,

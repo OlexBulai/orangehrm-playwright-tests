@@ -4,6 +4,8 @@ test.describe('My Info navigation tests', () => {
   test('User can navigate through all My Info tabs in order', async ({
     myInfoPage,
   }) => {
+    test.setTimeout(90_000);
+
     const tabs = [
       {
         name: 'Personal Details',

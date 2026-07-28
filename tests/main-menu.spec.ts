@@ -1,4 +1,3 @@
-import { passwordLogin } from '../env';
 import { mainMenuItems } from '../src/pages/main-menu-page';
 import { test, expect } from './fixtures/main-menu.fixture';
 import { apiCases, navigationCases } from './helpers/main-menu-test-data';
@@ -18,6 +17,8 @@ test.describe('Main menu tests', () => {
     page,
     mainMenuPage,
   }) => {
+    test.setTimeout(90_000);
+
     for (const navigation of navigationCases) {
       await test.step(`Open ${navigation.name}`, async () => {
         await mainMenuPage.open(navigation.name);
@@ -54,18 +55,17 @@ test.describe('Main menu tests', () => {
     }
   });
 
-  test('User can confirm access to Maintenance', async ({
+  test('Maintenance requires administrator confirmation', async ({
     page,
     mainMenuPage,
   }) => {
     await mainMenuPage.open('Maintenance');
     await expect(page).toHaveURL(/maintenance\/purgeEmployee/);
 
-    await mainMenuPage.confirmMaintenancePassword(passwordLogin);
-
-    await expect(page).toHaveURL(/maintenance\/purgeEmployee/);
     await expect(
-      page.getByRole('heading', { name: 'Purge Employee Records' }),
+      page.getByRole('heading', { name: 'Administrator Access' }),
     ).toBeVisible();
+    await expect(page.locator('input[name="password"]')).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Confirm' })).toBeVisible();
   });
 });

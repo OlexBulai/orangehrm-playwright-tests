@@ -1,5 +1,7 @@
 import { test as base, expect } from '../shared/authenticated.fixture';
-import WorkShiftsApi, { WorkShiftData } from '../../../src/pages/api/work-shifts-api';
+import WorkShiftsApi, {
+  WorkShiftData,
+} from '../../../src/pages/api/work-shifts-api';
 import WorkShiftsComponent from '../../../src/pages/components/work-shifts-component';
 
 type WorkShiftCleanup = { track(id: number): void; forget(id: number): void };

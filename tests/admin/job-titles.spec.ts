@@ -24,7 +24,7 @@ test.describe('OrangeHRM Admin Job Titles tests', () => {
     await jobTitles.expectRecords(await jobTitlesApi.getJobTitles());
   });
 
-  test.describe('Job Title mutations', () => {
+  test.describe('Job Title mutations', { tag: '@mutation' }, () => {
     test.describe.configure({ mode: 'serial' });
     test.skip(
       ({ browserName }) => browserName !== 'chromium',

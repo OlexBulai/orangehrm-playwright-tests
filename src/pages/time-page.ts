@@ -58,4 +58,20 @@ export default class TimePage {
   async goToNextTimesheetPeriod() {
     await this.page.locator('.orangehrm-timeperiod-icon.--next').click();
   }
+
+  async openAttendanceEmployeeRecords() {
+    await this.page.getByText('Attendance', { exact: true }).click();
+    await this.page
+      .getByRole('menuitem', { name: 'Employee Records', exact: true })
+      .click();
+    await this.page.waitForURL(/attendance\/viewAttendanceRecord/);
+  }
+
+  async openProjectCustomers() {
+    await this.page.getByText('Project Info', { exact: true }).click();
+    await this.page
+      .getByRole('menuitem', { name: 'Customers', exact: true })
+      .click();
+    await this.page.waitForURL(/time\/viewCustomers/);
+  }
 }

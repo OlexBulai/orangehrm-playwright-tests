@@ -71,7 +71,9 @@ export default class QualificationsComponent {
 
   private rows(section: Locator): Locator {
     return section
-      .locator('xpath=following::div[contains(@class,"orangehrm-container")][1]')
+      .locator(
+        'xpath=following::div[contains(@class,"orangehrm-container")][1]',
+      )
       .locator('.oxd-table-body .oxd-table-card');
   }
 
@@ -94,7 +96,10 @@ export default class QualificationsComponent {
   async addWorkExperience(data: WorkExperienceData): Promise<number> {
     await this.openAddForm(0);
     await this.fillWorkExperience(data);
-    const saved = await this.save<SavedWorkExperience>('POST', 'work-experiences');
+    const saved = await this.save<SavedWorkExperience>(
+      'POST',
+      'work-experiences',
+    );
     await expect(this.row(data.company)).toBeVisible();
     return saved.data.id;
   }
@@ -121,7 +126,9 @@ export default class QualificationsComponent {
     await selectDropdownOption(this.page, selects.nth(2), data.competency);
     await this.form().locator('textarea').fill(data.comment);
     const saved = await this.save<SavedLanguage>('POST', 'languages');
-    await expect(this.row(data.language).filter({ hasText: data.fluency })).toBeVisible();
+    await expect(
+      this.row(data.language).filter({ hasText: data.fluency }),
+    ).toBeVisible();
     return {
       languageId: saved.data.language.id,
       fluencyId: saved.data.fluency.id,

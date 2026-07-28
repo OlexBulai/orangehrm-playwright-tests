@@ -6,7 +6,14 @@
   "scripts": {
     "test": "playwright test",
     "test:chromium": "playwright test --project=chromium",
+    "test:smoke": "playwright test tests/buzz.spec.ts tests/claim.spec.ts tests/dashboard.spec.ts tests/leave.spec.ts tests/performance.spec.ts --project=chromium",
+    "test:readonly": "playwright test --project=chromium --grep-invert @mutation",
+    "test:mutation": "playwright test --project=chromium --grep @mutation --workers=1",
     "test:list": "playwright test --list",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint . --max-warnings=0",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
     "report": "playwright show-report"
   },
   "repository": {
@@ -22,8 +29,15 @@
   },
   "homepage": "https://github.com/OlexBulai/orangehrm-playwright-tests#readme",
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
     "@playwright/test": "^1.61.0",
-    "@types/node": "^25.9.3"
+    "@types/node": "^25.9.3",
+    "eslint": "^10.8.0",
+    "eslint-config-prettier": "^10.1.8",
+    "globals": "^17.8.0",
+    "prettier": "^3.9.6",
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.65.0"
   },
   "dependencies": {
     "@faker-js/faker": "^10.5.0",

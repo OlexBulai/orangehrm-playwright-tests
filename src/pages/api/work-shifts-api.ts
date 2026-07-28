@@ -9,7 +9,10 @@ export type WorkShiftData = {
   empNumbers: number[];
 };
 
-export type WorkShiftRecord = Omit<WorkShiftData, 'hoursPerDay' | 'empNumbers'> & {
+export type WorkShiftRecord = Omit<
+  WorkShiftData,
+  'hoursPerDay' | 'empNumbers'
+> & {
   id: number;
   hoursPerDay: number;
 };
@@ -35,8 +38,13 @@ export default class WorkShiftsApi {
   }
 
   async getWorkShiftIdByName(name: string): Promise<number> {
-    const record = (await this.getWorkShifts()).find((shift) => shift.name === name);
-    expect(record, `Work Shift "${name}" was not returned by API`).toBeDefined();
+    const record = (await this.getWorkShifts()).find(
+      (shift) => shift.name === name,
+    );
+    expect(
+      record,
+      `Work Shift "${name}" was not returned by API`,
+    ).toBeDefined();
     return record!.id;
   }
 

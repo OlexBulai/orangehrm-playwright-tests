@@ -16,11 +16,14 @@ test.describe('OrangeHRM Admin Work Shifts tests', () => {
     await workShifts.expectColumns();
   });
 
-  test('Work Shifts table matches API data', async ({ workShifts, workShiftsApi }) => {
+  test('Work Shifts table matches API data', async ({
+    workShifts,
+    workShiftsApi,
+  }) => {
     await workShifts.expectRecords(await workShiftsApi.getWorkShifts());
   });
 
-  test.describe('Work Shift mutations', () => {
+  test.describe('Work Shift mutations', { tag: '@mutation' }, () => {
     test.describe.configure({ mode: 'serial' });
     test.skip(
       ({ browserName }) => browserName !== 'chromium',

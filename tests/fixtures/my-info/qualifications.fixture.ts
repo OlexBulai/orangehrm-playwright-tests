@@ -19,10 +19,7 @@ export const test = base.extend<QualificationsFixtures>({
     await use(new QualificationsApi(page.request));
   },
 
-  qualificationsCleanup: async (
-    { qualificationsApi, employeeId },
-    use,
-  ) => {
+  qualificationsCleanup: async ({ qualificationsApi, employeeId }, use) => {
     const workIds = new Set<number>();
     const languageIds = new Map<string, LanguageId>();
     const key = (id: LanguageId) => `${id.languageId}:${id.fluencyId}`;
@@ -37,7 +34,9 @@ export const test = base.extend<QualificationsFixtures>({
       await use(cleanup);
     } finally {
       await qualificationsApi.deleteWorkExperiences(employeeId, [...workIds]);
-      await qualificationsApi.deleteLanguages(employeeId, [...languageIds.values()]);
+      await qualificationsApi.deleteLanguages(employeeId, [
+        ...languageIds.values(),
+      ]);
     }
   },
 });

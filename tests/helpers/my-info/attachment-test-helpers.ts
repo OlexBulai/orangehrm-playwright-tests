@@ -56,9 +56,7 @@ export function getFileNameFromContentDisposition(
     throw new Error('Content-Disposition header is missing');
   }
 
-  const encodedFileName = header.match(
-    /filename\*\s*=\s*utf-8''([^;]+)/i,
-  )?.[1];
+  const encodedFileName = header.match(/filename\*\s*=\s*utf-8''([^;]+)/i)?.[1];
 
   if (encodedFileName === undefined) {
     throw new Error(

@@ -65,7 +65,11 @@ export const test = base.extend<{
         data.employeeId,
       );
       adminCleanup.trackEmployee(number);
-      return { ...data, number, fullName: `${data.firstName} ${data.lastName}` };
+      return {
+        ...data,
+        number,
+        fullName: `${data.firstName} ${data.lastName}`,
+      };
     };
 
     await use({

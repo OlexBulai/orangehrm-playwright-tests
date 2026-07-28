@@ -13,9 +13,7 @@ export const test = base.extend<{
   employmentStatus: EmploymentStatusComponent;
   employmentStatusApi: EmploymentStatusApi;
   employmentStatusCleanup: EmploymentStatusCleanup;
-  createEmploymentStatusThroughApi(
-    data: EmploymentStatusData,
-  ): Promise<number>;
+  createEmploymentStatusThroughApi(data: EmploymentStatusData): Promise<number>;
 }>({
   employmentStatus: async ({ page }, use) => {
     await use(new EmploymentStatusComponent(page));

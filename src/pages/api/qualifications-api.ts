@@ -5,7 +5,10 @@ import { WorkExperienceData } from '../components/qualifications-component';
 export type QualificationLists = {
   workExperiences: Array<{ id: number; company: string; jobTitle: string }>;
   educations: Array<{ education: { name: string } }>;
-  skills: Array<{ skill: { name: string }; yearsOfExperience: string | number }>;
+  skills: Array<{
+    skill: { name: string };
+    yearsOfExperience: string | number;
+  }>;
   languages: Array<{
     language: { name: string };
     fluency: { name: string };
@@ -88,7 +91,13 @@ export default class QualificationsApi {
         this.getList(employeeId, 'languages'),
         this.getList(employeeId, 'licenses'),
       ]);
-    return { workExperiences, educations, skills, languages, licenses } as QualificationLists;
+    return {
+      workExperiences,
+      educations,
+      skills,
+      languages,
+      licenses,
+    } as QualificationLists;
   }
 
   async getCustomFieldCount(employeeId: string) {
@@ -101,7 +110,10 @@ export default class QualificationsApi {
     return body.meta.fields.length;
   }
 
-  private async getList(employeeId: string, endpoint: string): Promise<unknown[]> {
+  private async getList(
+    employeeId: string,
+    endpoint: string,
+  ): Promise<unknown[]> {
     const response = await this.request.get(
       `${this.employeeUrl(employeeId)}/${endpoint}`,
       { params: { limit: 50, offset: 0 } },

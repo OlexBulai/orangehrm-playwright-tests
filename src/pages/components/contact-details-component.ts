@@ -72,9 +72,7 @@ export default class ContactDetailsComponent {
     const responsePromise = this.page.waitForResponse(
       (response) =>
         response.request().method() === 'PUT' &&
-        /\/api\/v2\/pim\/employee\/\d+\/contact-details$/.test(
-          response.url(),
-        ),
+        /\/api\/v2\/pim\/employee\/\d+\/contact-details$/.test(response.url()),
     );
     await saveButton.click();
     const response = await responsePromise;
@@ -129,6 +127,8 @@ export default class ContactDetailsComponent {
   private async selectCountry(country: string) {
     await this.countrySelect().click();
     const optionName = country || '-- Select --';
-    await this.page.getByRole('option', { name: optionName, exact: true }).click();
+    await this.page
+      .getByRole('option', { name: optionName, exact: true })
+      .click();
   }
 }
