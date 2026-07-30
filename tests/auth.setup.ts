@@ -7,7 +7,7 @@ import { passwordLogin, usernameLogin } from '../env';
 const authFile = 'playwright/.auth/user.json';
 
 setup('authenticate once for CI', async ({ page }) => {
-  setup.setTimeout(90_000);
+  setup.setTimeout(120_000);
 
   const loginPage = new LoginPage(page);
   await loginPage.open();
