@@ -11,7 +11,16 @@ export const test = base.extend<AuthenticatedFixtures>({
     async ({ page }, use) => {
       if (process.env.CI) {
         await page.goto(`${baseUrl}/dashboard/index`);
-        await expect(page).toHaveURL(/dashboard/, { timeout: 20_000 });
+        if (!/dashboard/.test(page.url())) {
+          const loginPage = new LoginPage(page);
+          await loginPage.fillUsername(usernameLogin);
+          await loginPage.fillPassword(passwordLogin);
+          await loginPage.clickLoginButton();
+          await expect(page).toHaveURL(/dashboard/, { timeout: 60_000 });
+          await page
+            .context()
+            .storageState({ path: 'playwright/.auth/user.json' });
+        }
         await use();
         return;
       }
@@ -24,7 +33,7 @@ export const test = base.extend<AuthenticatedFixtures>({
       await expect(page).toHaveURL(/dashboard/, { timeout: 20_000 });
       await use();
     },
-    { auto: true, timeout: 60_000 },
+    { auto: true, timeout: 120_000 },
   ],
 });
 

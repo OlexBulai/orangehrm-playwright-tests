@@ -4,7 +4,7 @@ import { usernameLogin, passwordLogin } from '../env';
 
 test.use({ storageState: { cookies: [], origins: [] } });
 
-test.describe('OrangeHRM auth tests', () => {
+test.describe('OrangeHRM auth tests', { tag: '@auth' }, () => {
   const dashboardTitle = 'h6';
 
   test.beforeEach('Navigate to login page', async ({ page }) => {

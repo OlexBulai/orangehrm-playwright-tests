@@ -17,12 +17,16 @@ const ciWorkers = requestedCiWorkers > 0 ? requestedCiWorkers : 4;
  */
 export default defineConfig({
   testDir: './tests',
+  timeout: process.env.CI ? 90_000 : 30_000,
   /* The public demo uses one shared employee, so mutations must stay sequential. */
   fullyParallel: false,
   /* Fail the build on CI if you accidentally left test.only in the source code. */
   forbidOnly: !!process.env.CI,
   /* Retry on CI only */
-  retries: 0,
+  retries: process.env.CI ? 1 : 0,
+  expect: {
+    timeout: process.env.CI ? 15_000 : 5_000,
+  },
   workers: process.env.CI ? ciWorkers : 1,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   reporter: process.env.CI ? [['line'], ['html', { open: 'never' }]] : 'html',

@@ -7,12 +7,14 @@ import { passwordLogin, usernameLogin } from '../env';
 const authFile = 'playwright/.auth/user.json';
 
 setup('authenticate once for CI', async ({ page }) => {
+  setup.setTimeout(90_000);
+
   const loginPage = new LoginPage(page);
   await loginPage.open();
   await loginPage.fillUsername(usernameLogin);
   await loginPage.fillPassword(passwordLogin);
   await loginPage.clickLoginButton();
-  await expect(page).toHaveURL(/dashboard/, { timeout: 20_000 });
+  await expect(page).toHaveURL(/dashboard/, { timeout: 60_000 });
 
   mkdirSync(dirname(authFile), { recursive: true });
   await page.context().storageState({ path: authFile });

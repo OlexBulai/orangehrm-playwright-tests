@@ -16,6 +16,7 @@ on:
         options:
           - all
           - smoke
+          - auth
           - readonly
           - mutation
           - my-info
@@ -25,7 +26,7 @@ env:
   USERNAME_LOGIN: ${{ secrets.USERNAME_LOGIN }}
   PASSWORD_LOGIN: ${{ secrets.PASSWORD_LOGIN }}
   BASE_URL: ${{ secrets.BASE_URL }}
-  CI_WORKERS: 4
+  CI_WORKERS: 1
 
 jobs:
   quality:
@@ -129,6 +130,10 @@ jobs:
         if: ${{ inputs.test_suite == 'smoke' }}
         run: npm run test:smoke
 
+      - name: Run auth tests
+        if: ${{ inputs.test_suite == 'auth' }}
+        run: npm run test:auth
+
       - name: Run read-only tests
         if: ${{ inputs.test_suite == 'readonly' }}
         run: npm run test:readonly
@@ -140,6 +145,7 @@ jobs:
       - name: Run all tests safely
         if: ${{ inputs.test_suite == 'all' }}
         run: |
+          npm run test:auth
           npm run test:readonly
           npm run test:mutation
 
