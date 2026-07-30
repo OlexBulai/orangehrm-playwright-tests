@@ -105,7 +105,7 @@ jobs:
 
   selected-suite:
     name: Run selected Playwright suite
-    if: github.event_name == 'workflow_dispatch'
+    if: github.event_name == 'workflow_dispatch' && inputs.test_suite != 'all'
     needs: quality
     timeout-minutes: 60
     runs-on: ubuntu-latest
@@ -142,13 +142,6 @@ jobs:
         if: ${{ inputs.test_suite == 'mutation' }}
         run: npm run test:mutation
 
-      - name: Run all tests safely
-        if: ${{ inputs.test_suite == 'all' }}
-        run: |
-          npm run test:auth
-          npm run test:readonly
-          npm run test:mutation
-
       - name: Run My Info tests safely
         if: ${{ inputs.test_suite == 'my-info' }}
         run: |
@@ -175,6 +168,136 @@ jobs:
         uses: actions/upload-artifact@v5
         with:
           name: test-results-${{ inputs.test_suite }}
+          path: test-results/
+          retention-days: 14
+          if-no-files-found: warn
+
+  all-auth:
+    name: All - auth tests
+    if: github.event_name == 'workflow_dispatch' && inputs.test_suite == 'all'
+    needs: quality
+    timeout-minutes: 20
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Run auth tests
+        run: npm run test:auth
+
+      - name: Upload Playwright report
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v5
+        with:
+          name: playwright-report-all-auth
+          path: playwright-report/
+          retention-days: 14
+          if-no-files-found: warn
+
+      - name: Upload failure diagnostics
+        if: ${{ failure() }}
+        uses: actions/upload-artifact@v5
+        with:
+          name: test-results-all-auth
+          path: test-results/
+          retention-days: 14
+          if-no-files-found: warn
+
+  all-readonly:
+    name: All - read-only tests
+    needs: all-auth
+    timeout-minutes: 60
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Run read-only tests
+        run: npm run test:readonly
+
+      - name: Upload Playwright report
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v5
+        with:
+          name: playwright-report-all-readonly
+          path: playwright-report/
+          retention-days: 14
+          if-no-files-found: warn
+
+      - name: Upload failure diagnostics
+        if: ${{ failure() }}
+        uses: actions/upload-artifact@v5
+        with:
+          name: test-results-all-readonly
+          path: test-results/
+          retention-days: 14
+          if-no-files-found: warn
+
+  all-mutation:
+    name: All - mutation tests
+    needs: all-readonly
+    timeout-minutes: 60
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Run mutation tests
+        run: npm run test:mutation
+
+      - name: Upload Playwright report
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v5
+        with:
+          name: playwright-report-all-mutation
+          path: playwright-report/
+          retention-days: 14
+          if-no-files-found: warn
+
+      - name: Upload failure diagnostics
+        if: ${{ failure() }}
+        uses: actions/upload-artifact@v5
+        with:
+          name: test-results-all-mutation
           path: test-results/
           retention-days: 14
           if-no-files-found: warn
