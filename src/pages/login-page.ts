@@ -14,7 +14,7 @@ export default class LoginPage {
     for (let attempt = 1; attempt <= attempts; attempt += 1) {
       try {
         const response = await this.page.goto(`${baseUrl}/auth/login`, {
-          timeout: 25_000,
+          timeout: 30_000,
           waitUntil: 'domcontentloaded',
         });
 
@@ -28,7 +28,7 @@ export default class LoginPage {
       } catch (error) {
         lastError = error;
         if (attempt < attempts) {
-          await new Promise((resolve) => setTimeout(resolve, 5_000));
+          await new Promise((resolve) => setTimeout(resolve, 10_000));
         }
       }
     }
