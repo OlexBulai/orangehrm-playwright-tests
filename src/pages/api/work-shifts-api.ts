@@ -1,4 +1,4 @@
-import { APIRequestContext, expect } from '@playwright/test';
+import { APIRequestContext, APIResponse, expect } from '@playwright/test';
 import { baseUrl } from '../../../env';
 
 export type WorkShiftData = {
@@ -23,10 +23,19 @@ export default class WorkShiftsApi {
     return `${baseUrl}/api/v2/admin/work-shifts`;
   }
 
+  async createWorkShiftResponse(data: WorkShiftData): Promise<APIResponse> {
+    return this.request.post(this.url, { data });
+  }
+
   async createWorkShift(data: WorkShiftData): Promise<number> {
-    const response = await this.request.post(this.url, { data });
+    const response = await this.createWorkShiftResponse(data);
     expect(response.status()).toBe(200);
     return ((await response.json()) as { data: WorkShiftRecord }).data.id;
+  }
+
+  async updateWorkShift(id: number, data: WorkShiftData): Promise<void> {
+    const response = await this.request.put(`${this.url}/${id}`, { data });
+    expect(response.status()).toBe(200);
   }
 
   async getWorkShifts(): Promise<WorkShiftRecord[]> {

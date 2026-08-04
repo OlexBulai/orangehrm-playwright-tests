@@ -1,4 +1,4 @@
-import { APIRequestContext, expect } from '@playwright/test';
+import { APIRequestContext, APIResponse, expect } from '@playwright/test';
 import { baseUrl } from '../../../env';
 
 export type EmploymentStatusData = {
@@ -16,11 +16,25 @@ export default class EmploymentStatusApi {
     return `${baseUrl}/api/v2/admin/employment-statuses`;
   }
 
+  async createEmploymentStatusResponse(
+    data: EmploymentStatusData,
+  ): Promise<APIResponse> {
+    return this.request.post(this.url, { data });
+  }
+
   async createEmploymentStatus(data: EmploymentStatusData): Promise<number> {
-    const response = await this.request.post(this.url, { data });
+    const response = await this.createEmploymentStatusResponse(data);
     expect(response.status()).toBe(200);
     return ((await response.json()) as { data: EmploymentStatusRecord }).data
       .id;
+  }
+
+  async updateEmploymentStatus(
+    id: number,
+    data: EmploymentStatusData,
+  ): Promise<void> {
+    const response = await this.request.put(`${this.url}/${id}`, { data });
+    expect(response.status()).toBe(200);
   }
 
   async getEmploymentStatuses(): Promise<EmploymentStatusRecord[]> {

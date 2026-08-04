@@ -1,4 +1,4 @@
-import { APIRequestContext, expect } from '@playwright/test';
+import { APIRequestContext, APIResponse, expect } from '@playwright/test';
 import { baseUrl } from '../../../env';
 
 export type PayGradeData = {
@@ -17,10 +17,19 @@ export default class PayGradesApi {
     return `${baseUrl}/api/v2/admin/pay-grades`;
   }
 
+  async createPayGradeResponse(data: PayGradeData): Promise<APIResponse> {
+    return this.request.post(this.url, { data });
+  }
+
   async createPayGrade(data: PayGradeData): Promise<number> {
-    const response = await this.request.post(this.url, { data });
+    const response = await this.createPayGradeResponse(data);
     expect(response.status()).toBe(200);
     return ((await response.json()) as { data: PayGradeRecord }).data.id;
+  }
+
+  async updatePayGrade(id: number, data: PayGradeData): Promise<void> {
+    const response = await this.request.put(`${this.url}/${id}`, { data });
+    expect(response.status()).toBe(200);
   }
 
   async getPayGrades(): Promise<PayGradeRecord[]> {

@@ -1,8 +1,5 @@
 import { test, expect } from '../fixtures/my-info/dependents.fixture';
-import {
-  createChildDependent,
-  createOtherDependent,
-} from '../helpers/my-info/dependent-test-helpers';
+import { createChildDependent } from '../helpers/my-info/dependent-test-helpers';
 
 test.describe('My Info Dependents tests', () => {
   test('User can open Dependents', async ({ myInfoPage }) => {
@@ -36,55 +33,6 @@ test.describe('My Info Dependents tests', () => {
         name: dependent.name,
         relationshipType: 'child',
       });
-    });
-
-    test('User can add a dependent with custom relationship', async ({
-      myInfoPage,
-      dependentCleanup,
-    }) => {
-      const dependent = createOtherDependent();
-
-      const saved = await myInfoPage.dependents.addDependent(dependent);
-      dependentCleanup.track(Number(saved.data.id));
-
-      await myInfoPage.dependents.expectDependent(dependent);
-      expect(saved.data).toMatchObject({
-        name: dependent.name,
-        relationshipType: 'other',
-        relationship: dependent.relationship,
-      });
-    });
-
-    test('User can edit a dependent', async ({
-      myInfoPage,
-      dependentSetup,
-    }) => {
-      const original = createChildDependent();
-      await dependentSetup.create(original);
-      const updated = createOtherDependent();
-
-      const saved = await myInfoPage.dependents.editDependent(
-        original.name,
-        updated,
-      );
-
-      expect(saved.requestData).toMatchObject({
-        name: updated.name,
-        relationshipType: 'other',
-        relationship: updated.relationship,
-      });
-    });
-
-    test('User can delete a dependent', async ({
-      myInfoPage,
-      dependentSetup,
-      dependentCleanup,
-    }) => {
-      const dependent = createChildDependent();
-      const id = await dependentSetup.create(dependent);
-
-      await myInfoPage.dependents.deleteDependent(dependent.name);
-      dependentCleanup.forget(id);
     });
   });
 

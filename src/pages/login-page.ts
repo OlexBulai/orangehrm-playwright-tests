@@ -1,11 +1,32 @@
-import { Page } from '@playwright/test';
+import { Locator, Page } from '@playwright/test';
 import { baseUrl } from '../../env';
 
 export default class LoginPage {
   readonly usernameInput = 'input[name="username"]';
   readonly passwordInput = 'input[name="password"]';
   readonly loginButton = 'button[type="submit"]';
-  constructor(private page: Page) {}
+  readonly forgotPasswordLink: Locator;
+  readonly resetPasswordHeading: Locator;
+  readonly resetPasswordButton: Locator;
+  readonly cancelResetButton: Locator;
+
+  constructor(private page: Page) {
+    this.forgotPasswordLink = page.getByText('Forgot your password?', {
+      exact: true,
+    });
+    this.resetPasswordHeading = page.getByRole('heading', {
+      name: 'Reset Password',
+      exact: true,
+    });
+    this.resetPasswordButton = page.getByRole('button', {
+      name: 'Reset Password',
+      exact: true,
+    });
+    this.cancelResetButton = page.getByRole('button', {
+      name: 'Cancel',
+      exact: true,
+    });
+  }
 
   async open() {
     const attempts = 3;
@@ -44,5 +65,17 @@ export default class LoginPage {
   }
   async clickLoginButton() {
     await this.page.locator(this.loginButton).click();
+  }
+
+  async openForgotPassword() {
+    await this.forgotPasswordLink.click();
+  }
+
+  async submitPasswordReset() {
+    await this.resetPasswordButton.click();
+  }
+
+  async cancelPasswordReset() {
+    await this.cancelResetButton.click();
   }
 }

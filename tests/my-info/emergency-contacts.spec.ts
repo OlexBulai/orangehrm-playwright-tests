@@ -40,40 +40,6 @@ test.describe('My Info Emergency Contacts tests', () => {
         officePhone: contact.workPhone,
       });
     });
-
-    test('User can edit an emergency contact', async ({
-      myInfoPage,
-      emergencyContactSetup,
-    }) => {
-      const original = createEmergencyContact();
-      await emergencyContactSetup.create(original);
-      const updated = createEmergencyContact();
-
-      const saved = await myInfoPage.emergencyContacts.editEmergencyContact(
-        original.name,
-        updated,
-      );
-
-      expect(saved.requestData).toMatchObject({
-        name: updated.name,
-        relationship: updated.relationship,
-        homePhone: updated.homePhone,
-        mobilePhone: updated.mobilePhone,
-        officePhone: updated.workPhone,
-      });
-    });
-
-    test('User can delete an emergency contact', async ({
-      myInfoPage,
-      emergencyContactSetup,
-      emergencyContactCleanup,
-    }) => {
-      const contact = createEmergencyContact();
-      const id = await emergencyContactSetup.create(contact);
-
-      await myInfoPage.emergencyContacts.deleteEmergencyContact(contact.name);
-      emergencyContactCleanup.forget(id);
-    });
   });
 
   test('User cannot add an emergency contact without required fields', async ({

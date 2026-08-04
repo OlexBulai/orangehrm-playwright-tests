@@ -1,4 +1,4 @@
-import { APIRequestContext, expect } from '@playwright/test';
+import { APIRequestContext, APIResponse, expect } from '@playwright/test';
 import { baseUrl } from '../../../env';
 
 export type JobCategoryData = { name: string };
@@ -11,10 +11,19 @@ export default class JobCategoriesApi {
     return `${baseUrl}/api/v2/admin/job-categories`;
   }
 
+  async createJobCategoryResponse(data: JobCategoryData): Promise<APIResponse> {
+    return this.request.post(this.url, { data });
+  }
+
   async createJobCategory(data: JobCategoryData): Promise<number> {
-    const response = await this.request.post(this.url, { data });
+    const response = await this.createJobCategoryResponse(data);
     expect(response.status()).toBe(200);
     return ((await response.json()) as { data: JobCategoryRecord }).data.id;
+  }
+
+  async updateJobCategory(id: number, data: JobCategoryData): Promise<void> {
+    const response = await this.request.put(`${this.url}/${id}`, { data });
+    expect(response.status()).toBe(200);
   }
 
   async getJobCategories(): Promise<JobCategoryRecord[]> {

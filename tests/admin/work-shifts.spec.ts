@@ -43,33 +43,6 @@ test.describe('OrangeHRM Admin Work Shifts tests', () => {
       await workShifts.expectWorkShift(data);
     });
 
-    test('Admin can edit a Work Shift', async ({
-      page,
-      workShifts,
-      createWorkShiftThroughApi,
-    }) => {
-      const original = createWorkShift('original');
-      await createWorkShiftThroughApi(original);
-      await page.reload();
-      const updated = createWorkShift('updated');
-      await workShifts.editWorkShift(original.name, updated);
-      await workShifts.openWorkShifts();
-      await workShifts.expectWorkShift(updated);
-    });
-
-    test('Admin can delete a Work Shift', async ({
-      page,
-      workShifts,
-      createWorkShiftThroughApi,
-      workShiftCleanup,
-    }) => {
-      const data = createWorkShift('delete');
-      const id = await createWorkShiftThroughApi(data);
-      await page.reload();
-      await workShifts.deleteWorkShift(data.name);
-      workShiftCleanup.forget(id);
-    });
-
     test('Work Shift name is required', async ({ workShifts }) => {
       await workShifts.expectRequiredNameValidation();
     });

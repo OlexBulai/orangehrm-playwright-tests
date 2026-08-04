@@ -146,13 +146,13 @@ jobs:
         if: ${{ inputs.test_suite == 'my-info' }}
         run: |
           npx playwright test tests/my-info --project=chromium --grep-invert @mutation
-          npx playwright test tests/my-info --project=chromium --grep @mutation --workers=1
+          npx playwright test tests/my-info tests/api/my-info --project=chromium --grep @mutation --workers=1
 
       - name: Run Admin tests safely
         if: ${{ inputs.test_suite == 'admin' }}
         run: |
           npx playwright test tests/admin --project=chromium --grep-invert @mutation
-          npx playwright test tests/admin --project=chromium --grep @mutation --workers=1
+          npx playwright test tests/admin tests/api/admin --project=chromium --grep @mutation --workers=1
 
       - name: Upload Playwright report
         if: ${{ always() }}

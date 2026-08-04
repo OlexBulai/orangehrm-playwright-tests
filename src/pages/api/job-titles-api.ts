@@ -1,4 +1,4 @@
-import { APIRequestContext, expect } from '@playwright/test';
+import { APIRequestContext, APIResponse, expect } from '@playwright/test';
 import { baseUrl } from '../../../env';
 
 export type JobTitleData = {
@@ -21,12 +21,23 @@ export default class JobTitlesApi {
     return `${baseUrl}/api/v2/admin/job-titles`;
   }
 
+  async createJobTitleResponse(data: JobTitleData): Promise<APIResponse> {
+    return this.request.post(this.url, {
+      data: { ...data, specification: null },
+    });
+  }
+
   async createJobTitle(data: JobTitleData) {
-    const response = await this.request.post(this.url, {
+    const response = await this.createJobTitleResponse(data);
+    expect(response.status()).toBe(200);
+    return ((await response.json()) as { data: JobTitleRecord }).data.id;
+  }
+
+  async updateJobTitle(id: number, data: JobTitleData): Promise<void> {
+    const response = await this.request.put(`${this.url}/${id}`, {
       data: { ...data, specification: null },
     });
     expect(response.status()).toBe(200);
-    return ((await response.json()) as { data: JobTitleRecord }).data.id;
   }
 
   async getJobTitles() {
