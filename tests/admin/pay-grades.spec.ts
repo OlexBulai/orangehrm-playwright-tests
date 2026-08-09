@@ -44,6 +44,24 @@ test.describe('OrangeHRM Admin Pay Grades tests', () => {
       await payGrades.expectPayGrade(data);
     });
 
+    test('Admin can edit and delete a Pay Grade', async ({
+      page,
+      payGrades,
+      payGradeCleanup,
+      createPayGradeThroughApi,
+    }) => {
+      const original = createPayGrade('ui-original');
+      const updated = createPayGrade('ui-updated');
+      const id = await createPayGradeThroughApi(original);
+      await page.reload();
+
+      await payGrades.editPayGrade(original.name, updated);
+      await payGrades.openPayGrades();
+      await payGrades.expectPayGrade(updated);
+      await payGrades.deletePayGrade(updated.name);
+      payGradeCleanup.forget(id);
+    });
+
     test('Pay Grade name is required', async ({ payGrades }) => {
       await payGrades.expectRequiredNameValidation();
     });

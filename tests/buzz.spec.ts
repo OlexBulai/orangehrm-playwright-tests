@@ -1,5 +1,6 @@
 import { test, expect } from './fixtures/shared/authenticated.fixture';
 import BuzzPage from '../src/pages/buzz-page';
+import { faker } from '@faker-js/faker';
 
 test.describe('Buzz tests', () => {
   test('Admin can open Buzz Newsfeed', async ({ page }) => {
@@ -21,4 +22,26 @@ test.describe('Buzz tests', () => {
 
     expect((await responsePromise).ok()).toBeTruthy();
   });
+
+  test(
+    'Admin can create and delete a Buzz post',
+    { tag: '@mutation' },
+    async ({ page }) => {
+      const buzz = new BuzzPage(page);
+      const content = `Automation post ${faker.string.uuid()}`;
+      let postId: number | undefined;
+
+      try {
+        await buzz.open();
+        postId = await buzz.createPost(content);
+        await expect(buzz.post(content)).toBeVisible({ timeout: 15_000 });
+        await buzz.deletePost(content);
+        postId = undefined;
+      } finally {
+        if (postId !== undefined && (await buzz.post(content).isVisible())) {
+          await buzz.deletePost(content);
+        }
+      }
+    },
+  );
 });

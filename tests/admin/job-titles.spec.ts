@@ -43,6 +43,23 @@ test.describe('OrangeHRM Admin Job Titles tests', () => {
       await jobTitles.expectJobTitle(data);
     });
 
+    test('Admin can edit and delete a Job Title', async ({
+      page,
+      jobTitles,
+      jobTitleCleanup,
+      createJobTitleThroughApi,
+    }) => {
+      const original = createJobTitle('ui-original');
+      const updated = createJobTitle('ui-updated');
+      const id = await createJobTitleThroughApi(original);
+      await page.reload();
+
+      await jobTitles.editJobTitle(original.title, updated);
+      await jobTitles.expectJobTitle(updated);
+      await jobTitles.deleteJobTitle(updated.title);
+      jobTitleCleanup.forget(id);
+    });
+
     test('Job Title is required', async ({ jobTitles }) => {
       await jobTitles.expectRequiredTitleValidation();
     });

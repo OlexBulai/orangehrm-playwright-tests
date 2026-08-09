@@ -11,6 +11,10 @@ export default class DashboardPage {
     return this.page.locator('.orangehrm-dashboard-widget');
   }
 
+  get quickLaunchCards() {
+    return this.page.locator('.orangehrm-quick-launch-card');
+  }
+
   async open() {
     await this.page
       .getByRole('link', { name: 'Dashboard', exact: true })

@@ -31,4 +31,15 @@ test.describe('Leave tests', () => {
 
     await expect(dateInputs.first()).not.toHaveValue('2000-01-01');
   });
+
+  test('Admin cannot assign leave without required fields', async ({
+    page,
+  }) => {
+    const leave = new LeavePage(page);
+
+    await leave.openAssignLeave();
+    await leave.submitEmptyAssignLeaveForm();
+
+    await expect(leave.requiredMessages).not.toHaveCount(0);
+  });
 });

@@ -51,6 +51,23 @@ export default class AdminApi {
     return ((await response.json()) as { data: SystemUserRecord }).data.id;
   }
 
+  async updateSystemUser(id: number, data: SystemUserData) {
+    const response = await this.request.put(
+      `${baseUrl}/api/v2/admin/users/${id}`,
+      {
+        data: {
+          username: data.username,
+          password: '',
+          status: data.status === 'Enabled',
+          userRoleId: data.roleId,
+          empNumber: data.employeeNumber,
+          changePassword: false,
+        },
+      },
+    );
+    expect(response.status()).toBe(200);
+  }
+
   async getSystemUsers() {
     const response = await this.request.get(`${baseUrl}/api/v2/admin/users`, {
       params: {

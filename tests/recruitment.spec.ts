@@ -42,6 +42,19 @@ test.describe('Recruitment Page', () => {
     await expect(recruitmentPage.requiredMessages).toHaveCount(4);
   });
 
+  test('Admin cannot create vacancy without required fields', async ({
+    page,
+  }) => {
+    await recruitmentPage.openAddVacancyPage();
+    await expect(
+      page.getByRole('heading', { name: 'Add Vacancy' }),
+    ).toBeVisible();
+
+    await recruitmentPage.submitForm();
+
+    await expect(recruitmentPage.requiredMessages).not.toHaveCount(0);
+  });
+
   test('Admin can add candidate', { tag: '@mutation' }, async ({ page }) => {
     const firstName = faker.person.firstName();
     const lastName = faker.person.lastName();
@@ -63,7 +76,10 @@ test.describe('Recruitment Page', () => {
       const body = (await createResponse.json()) as { data: { id: number } };
       candidateId = body.data.id;
 
-      await expect(recruitmentPage.candidateProfileHeading).toBeVisible();
+      await expect(page).toHaveURL(/recruitment\/addCandidate\/\d+/);
+      await expect(recruitmentPage.candidateProfileHeading).toBeVisible({
+        timeout: 15_000,
+      });
     } finally {
       if (candidateId !== undefined) {
         const deleteResponse = await page.request.delete(

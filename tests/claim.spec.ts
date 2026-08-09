@@ -21,4 +21,15 @@ test.describe('Claim tests', () => {
 
     expect((await claim.search()).ok()).toBeTruthy();
   });
+
+  test('Admin cannot assign a claim without required fields', async ({
+    page,
+  }) => {
+    const claim = new ClaimPage(page);
+
+    await claim.openAssignClaimForm();
+    await claim.submitEmptyClaimForm();
+
+    await expect(claim.requiredMessages).not.toHaveCount(0);
+  });
 });

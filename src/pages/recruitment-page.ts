@@ -54,6 +54,15 @@ export default class RecruitmentPage {
     await this.page.getByRole('button', { name: 'Add' }).click();
   }
 
+  async openAddVacancyPage() {
+    await this.open();
+    await this.page
+      .getByRole('navigation', { name: 'Topbar Menu' })
+      .getByRole('link', { name: 'Vacancies', exact: true })
+      .click();
+    await this.page.getByRole('button', { name: 'Add' }).click();
+  }
+
   async submitForm() {
     await this.page.getByRole('button', { name: 'Save' }).click();
   }

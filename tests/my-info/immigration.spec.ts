@@ -1,5 +1,8 @@
 import { test, expect } from '../fixtures/my-info/immigration.fixture';
-import { createPassport } from '../helpers/my-info/immigration-test-helpers';
+import {
+  createPassport,
+  createVisa,
+} from '../helpers/my-info/immigration-test-helpers';
 
 test.describe('My Info Immigration tests', () => {
   test('User can open Immigration', async ({ myInfoPage }) => {
@@ -35,6 +38,24 @@ test.describe('My Info Immigration tests', () => {
         type: 1,
         country: passport.issuedBy,
       });
+    });
+
+    test('User can edit and delete an immigration document', async ({
+      myInfoPage,
+      immigrationSetup,
+      immigrationCleanup,
+    }) => {
+      const original = createPassport();
+      const updated = createVisa();
+      const id = await immigrationSetup.create(original);
+
+      await myInfoPage.immigration.editImmigrationDocument(
+        original.number,
+        updated,
+      );
+      await myInfoPage.immigration.expectDocument(updated);
+      await myInfoPage.immigration.deleteImmigrationDocument(updated.number);
+      immigrationCleanup.forget(id);
     });
   });
 

@@ -1,5 +1,8 @@
 import { test, expect } from '../fixtures/my-info/dependents.fixture';
-import { createChildDependent } from '../helpers/my-info/dependent-test-helpers';
+import {
+  createChildDependent,
+  createOtherDependent,
+} from '../helpers/my-info/dependent-test-helpers';
 
 test.describe('My Info Dependents tests', () => {
   test('User can open Dependents', async ({ myInfoPage }) => {
@@ -33,6 +36,21 @@ test.describe('My Info Dependents tests', () => {
         name: dependent.name,
         relationshipType: 'child',
       });
+    });
+
+    test('User can edit and delete a dependent', async ({
+      myInfoPage,
+      dependentSetup,
+      dependentCleanup,
+    }) => {
+      const original = createChildDependent();
+      const updated = createOtherDependent();
+      const id = await dependentSetup.create(original);
+
+      await myInfoPage.dependents.editDependent(original.name, updated);
+      await myInfoPage.dependents.expectDependent(updated);
+      await myInfoPage.dependents.deleteDependent(updated.name);
+      dependentCleanup.forget(id);
     });
   });
 

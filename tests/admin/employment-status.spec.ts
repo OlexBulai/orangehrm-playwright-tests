@@ -53,6 +53,23 @@ test.describe('OrangeHRM Admin Employment Status tests', () => {
       await employmentStatus.expectEmploymentStatus(data);
     });
 
+    test('Admin can edit and delete an Employment Status', async ({
+      page,
+      employmentStatus,
+      employmentStatusCleanup,
+      createEmploymentStatusThroughApi,
+    }) => {
+      const original = createEmploymentStatus('ui-original');
+      const updated = createEmploymentStatus('ui-updated');
+      const id = await createEmploymentStatusThroughApi(original);
+      await page.reload();
+
+      await employmentStatus.editEmploymentStatus(original.name, updated);
+      await employmentStatus.expectEmploymentStatus(updated);
+      await employmentStatus.deleteEmploymentStatus(updated.name);
+      employmentStatusCleanup.forget(id);
+    });
+
     test('Employment Status name is required', async ({ employmentStatus }) => {
       await employmentStatus.expectRequiredNameValidation();
     });

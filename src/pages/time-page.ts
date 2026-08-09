@@ -1,4 +1,4 @@
-import { Page } from '@playwright/test';
+import { expect, Page } from '@playwright/test';
 
 export default class TimePage {
   constructor(private readonly page: Page) {}
@@ -73,5 +73,47 @@ export default class TimePage {
       .getByRole('menuitem', { name: 'Customers', exact: true })
       .click();
     await this.page.waitForURL(/time\/viewCustomers/);
+  }
+
+  async openAddCustomerForm() {
+    await this.openProjectCustomers();
+    await this.page.getByRole('button', { name: 'Add' }).click();
+    await this.page
+      .getByRole('heading', { name: 'Add Customer', exact: true })
+      .waitFor({ state: 'visible' });
+  }
+
+  async saveEmptyCustomerForm() {
+    await this.page.getByRole('button', { name: 'Save' }).click();
+  }
+
+  async createCustomer(name: string, description: string) {
+    await this.openAddCustomerForm();
+    await this.page.locator('form input').fill(name);
+    await this.page.getByPlaceholder('Type description here').fill(description);
+    const responsePromise = this.page.waitForResponse(
+      (response) =>
+        response.request().method() === 'POST' &&
+        response.url().endsWith('/api/v2/time/customers'),
+    );
+    await this.page.getByRole('button', { name: 'Save' }).click();
+    const response = await responsePromise;
+    expect(response.status()).toBe(200);
+    return ((await response.json()) as { data: { id: number } }).data.id;
+  }
+
+  async deleteCustomer(name: string) {
+    const row = this.page.getByRole('row').filter({
+      has: this.page.getByRole('cell', { name, exact: true }),
+    });
+    await row.locator('button:has(i.bi-trash)').click();
+    const responsePromise = this.page.waitForResponse(
+      (response) =>
+        response.request().method() === 'DELETE' &&
+        response.url().endsWith('/api/v2/time/customers'),
+    );
+    await this.page.getByRole('button', { name: 'Yes, Delete' }).click();
+    expect((await responsePromise).status()).toBe(200);
+    await expect(row).toBeHidden();
   }
 }

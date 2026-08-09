@@ -22,4 +22,21 @@ test.describe('Dashboard tests', () => {
 
     expect((await responsePromise).ok()).toBeTruthy();
   });
+
+  test('Dashboard shows Quick Launch actions', async ({ page }) => {
+    const dashboard = new DashboardPage(page);
+    await dashboard.open();
+
+    await expect(dashboard.quickLaunchCards).toHaveCount(6);
+    for (const action of [
+      'Assign Leave',
+      'Leave List',
+      'Timesheets',
+      'Apply Leave',
+      'My Leave',
+      'My Timesheet',
+    ]) {
+      await expect(page.getByText(action, { exact: true })).toBeVisible();
+    }
+  });
 });

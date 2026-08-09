@@ -1,7 +1,8 @@
-import { test, expect } from './fixtures/shared/authenticated.fixture';
+import { test, expect } from './fixtures/pim.fixture';
 import PimPage from '../src/pages/pim-page';
 import { faker } from '@faker-js/faker';
 import { baseUrl } from '../env';
+import { createPimEmployee } from './helpers/pim-test-helpers';
 
 test.describe('OrangeHRM PIM tests', () => {
   test.describe.configure({ mode: 'serial' });
@@ -88,6 +89,40 @@ test.describe('OrangeHRM PIM tests', () => {
           expect(deleteResponse.status()).toBe(200);
         }
       }
+    },
+  );
+
+  test(
+    'Admin can edit and delete an employee through UI',
+    { tag: '@mutation' },
+    async ({ page, createEmployeeThroughApi, pimCleanup }) => {
+      const original = createPimEmployee('ui-original');
+      const updated = {
+        ...createPimEmployee('ui-updated'),
+        employeeId: original.employeeId,
+      };
+      const employeeNumber = await createEmployeeThroughApi(original);
+      const pimPage = new PimPage(page);
+
+      await pimPage.openPimPage();
+      await pimPage.fillSearchEmployeeId(original.employeeId);
+      await pimPage.clickSearchButton();
+      await pimPage.openEmployeeDetails(original.employeeId);
+
+      await pimPage.personalDetails.fillEmployeeName(updated);
+      await pimPage.personalDetails.savePersonalDetails();
+
+      await pimPage.openEmployeeList();
+      await pimPage.fillSearchEmployeeId(original.employeeId);
+      await pimPage.clickSearchButton();
+      await pimPage.expectEmployeeInList(
+        original.employeeId,
+        updated.firstName,
+        updated.lastName,
+      );
+
+      await pimPage.deleteEmployee(original.employeeId);
+      pimCleanup.forget(employeeNumber);
     },
   );
 });

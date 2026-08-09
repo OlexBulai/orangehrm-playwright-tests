@@ -48,6 +48,23 @@ test.describe('OrangeHRM Admin Job Categories tests', () => {
       await jobCategories.expectJobCategory(data);
     });
 
+    test('Admin can edit and delete a Job Category', async ({
+      page,
+      jobCategories,
+      jobCategoryCleanup,
+      createJobCategoryThroughApi,
+    }) => {
+      const original = createJobCategory('ui-original');
+      const updated = createJobCategory('ui-updated');
+      const id = await createJobCategoryThroughApi(original);
+      await page.reload();
+
+      await jobCategories.editJobCategory(original.name, updated);
+      await jobCategories.expectJobCategory(updated);
+      await jobCategories.deleteJobCategory(updated.name);
+      jobCategoryCleanup.forget(id);
+    });
+
     test('Job Category name is required', async ({ jobCategories }) => {
       await jobCategories.expectRequiredNameValidation();
     });

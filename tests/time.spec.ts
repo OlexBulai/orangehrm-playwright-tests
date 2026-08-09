@@ -1,5 +1,7 @@
 import { test, expect } from './fixtures/shared/authenticated.fixture';
 import TimePage from '../src/pages/time-page';
+import { faker } from '@faker-js/faker';
+import { baseUrl } from '../env';
 
 test.describe('Time Page', () => {
   let timePage: TimePage;
@@ -61,4 +63,39 @@ test.describe('Time Page', () => {
       page.getByRole('heading', { name: 'Customers', exact: true }),
     ).toBeVisible();
   });
+
+  test('Admin cannot create a customer without a name', async () => {
+    await timePage.open();
+    await timePage.openAddCustomerForm();
+    await timePage.saveEmptyCustomerForm();
+
+    await expect(timePage.requiredMessages).not.toHaveCount(0);
+  });
+
+  test(
+    'Admin can create and delete a customer',
+    { tag: '@mutation' },
+    async ({ page }) => {
+      const name = `QA Customer ${faker.string.alphanumeric(10)}`;
+      let customerId: number | undefined;
+
+      try {
+        await timePage.open();
+        customerId = await timePage.createCustomer(
+          name,
+          'Created by Playwright automation',
+        );
+        await timePage.deleteCustomer(name);
+        customerId = undefined;
+      } finally {
+        if (customerId !== undefined) {
+          const response = await page.request.delete(
+            `${baseUrl}/api/v2/time/customers`,
+            { data: { ids: [customerId] } },
+          );
+          expect([200, 404]).toContain(response.status());
+        }
+      }
+    },
+  );
 });

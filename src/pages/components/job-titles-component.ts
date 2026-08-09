@@ -69,6 +69,8 @@ export default class JobTitlesComponent {
     const responsePromise = this.waitForResponse('PUT');
     await this.page.getByRole('button', { name: 'Save' }).click();
     expect((await responsePromise).status()).toBe(200);
+    await expect(this.page).toHaveURL(/admin\/viewJobTitleList/);
+    await expect(this.heading).toBeVisible();
   }
 
   async deleteJobTitle(title: string) {

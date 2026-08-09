@@ -31,6 +31,13 @@ export default class AdminPage {
 
   async openAdminPage() {
     await this.page.getByRole('link', { name: 'Admin' }).click();
+    await this.page
+      .getByRole('navigation', { name: 'Topbar Menu' })
+      .getByText('User Management', { exact: true })
+      .click();
+    await this.page
+      .getByRole('menuitem', { name: 'Users', exact: true })
+      .click();
     await expect(this.page).toHaveURL(/admin\/viewSystemUsers/);
     await expect(this.heading).toBeVisible({ timeout: 20_000 });
   }
