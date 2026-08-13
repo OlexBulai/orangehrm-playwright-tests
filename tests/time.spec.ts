@@ -2,6 +2,8 @@ import { test, expect } from './fixtures/shared/authenticated.fixture';
 import TimePage from '../src/pages/time-page';
 import { faker } from '@faker-js/faker';
 import { baseUrl } from '../env';
+import PimApi from '../src/pages/api/pim-api';
+import TimeApi from '../src/pages/api/time-api';
 
 test.describe('Time Page', () => {
   let timePage: TimePage;
@@ -71,6 +73,69 @@ test.describe('Time Page', () => {
 
     await expect(timePage.requiredMessages).not.toHaveCount(0);
   });
+
+  test(
+    'Admin can add an entry to an employee timesheet and submit it',
+    { tag: '@mutation' },
+    async ({ page }, testInfo) => {
+      test.setTimeout(180_000);
+      const firstName = faker.person.firstName();
+      const lastName = faker.person.lastName();
+      const employeeName = `${firstName} ${lastName}`;
+      const customerName = `QA Customer ${faker.string.alphanumeric(8)}`;
+      const projectName = `QA Project ${faker.string.alphanumeric(8)}`;
+      const activityName = `QA Activity ${faker.string.alphanumeric(8)}`;
+      const hours = '8';
+      let employeeNumber: number | undefined;
+      let customerId: number | undefined;
+      let projectId: number | undefined;
+      let timesheetId: number | undefined;
+
+      const pimApi = new PimApi(page.request);
+      const timeApi = new TimeApi(page.request);
+
+      try {
+        employeeNumber = await pimApi.createEmployee({
+          firstName,
+          middleName: '',
+          lastName,
+          employeeId: faker.string.numeric(8),
+        });
+        customerId = await timeApi.createCustomer(customerName);
+        projectId = await timeApi.createProject(
+          projectName,
+          customerId,
+          employeeNumber,
+        );
+        await timeApi.createActivity(projectId, activityName);
+        timesheetId = await timeApi.createTimesheet(employeeNumber);
+
+        await timePage.open();
+        await timePage.selectEmployee(employeeName);
+        await timePage.clickViewTimesheetButton();
+        await timePage.editTimesheet();
+        await timePage.addTimesheetEntry(projectName, activityName, hours);
+        await timePage.saveTimesheet();
+        await timePage.submitTimesheet();
+
+        await expect(page.getByText('Status: Submitted')).toBeVisible();
+      } finally {
+        testInfo.setTimeout(testInfo.timeout + 60_000);
+        if (employeeNumber !== undefined && timesheetId !== undefined) {
+          await timeApi.clearTimesheet(employeeNumber, timesheetId);
+        }
+        if (employeeNumber !== undefined) {
+          await pimApi.deleteEmployees([employeeNumber]);
+        }
+        if (projectId !== undefined) {
+          await timeApi.deleteProjects([projectId]);
+        }
+        if (customerId !== undefined) {
+          await timeApi.deleteCustomers([customerId]);
+        }
+      }
+    },
+  );
 
   test(
     'Admin can create and delete a customer',

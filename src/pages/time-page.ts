@@ -39,6 +39,14 @@ export default class TimePage {
 
     return employeeName;
   }
+
+  async selectEmployee(employeeName: string) {
+    const employeeInput = this.page.getByPlaceholder('Type for hints...');
+    await employeeInput.fill(employeeName);
+    await this.page
+      .getByRole('option', { name: employeeName, exact: true })
+      .click();
+  }
   get viewButton() {
     return this.page.getByRole('button', { name: 'View' }).first();
   }
@@ -57,6 +65,59 @@ export default class TimePage {
   }
   async goToNextTimesheetPeriod() {
     await this.page.locator('.orangehrm-timeperiod-icon.--next').click();
+  }
+
+  async editTimesheet() {
+    const createTimesheetButton = this.page.getByRole('button', {
+      name: 'Create Timesheet',
+    });
+
+    if (await createTimesheetButton.isVisible()) {
+      const responsePromise = this.page.waitForResponse(
+        (response) =>
+          response.request().method() === 'POST' &&
+          response.url().endsWith('/api/v2/time/timesheets'),
+      );
+      await createTimesheetButton.click();
+      const response = await responsePromise;
+      expect(response.status(), await response.text()).toBe(200);
+    } else {
+      await this.page.getByRole('button', { name: 'Edit' }).click();
+    }
+    await this.page.getByText('Add Row', { exact: true }).waitFor();
+  }
+
+  async addTimesheetEntry(
+    projectName: string,
+    activityName: string,
+    hours: string,
+  ) {
+    const entryRows = this.page
+      .getByRole('row')
+      .filter({ has: this.page.getByPlaceholder('Type for hints...') });
+    await this.page.getByText('Add Row', { exact: true }).click();
+    await expect(entryRows).not.toHaveCount(0);
+    const row = entryRows.last();
+    const projectInput = row.getByPlaceholder('Type for hints...');
+    await projectInput.fill(projectName);
+    await this.page
+      .getByRole('option')
+      .filter({ hasText: projectName })
+      .click();
+    await row.locator('.oxd-select-text').click();
+    await this.page
+      .getByRole('option', { name: activityName, exact: true })
+      .click();
+    await row.locator('input').nth(1).fill(hours);
+  }
+
+  async saveTimesheet() {
+    await this.page.getByRole('button', { name: 'Save' }).click();
+    await this.page.getByRole('button', { name: 'Submit' }).waitFor();
+  }
+
+  async submitTimesheet() {
+    await this.page.getByRole('button', { name: 'Submit' }).click();
   }
 
   async openAttendanceEmployeeRecords() {

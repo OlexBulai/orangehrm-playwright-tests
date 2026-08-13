@@ -1,4 +1,4 @@
-import { Page } from '@playwright/test';
+import { expect, Page } from '@playwright/test';
 
 export default class RecruitmentPage {
   constructor(private readonly page: Page) {}
@@ -35,8 +35,34 @@ export default class RecruitmentPage {
     return this.page.getByPlaceholder('From');
   }
 
+  get candidateFirstNameInput() {
+    return this.page.getByPlaceholder('First Name');
+  }
+
+  get candidateLastNameInput() {
+    return this.page.getByPlaceholder('Last Name');
+  }
+
+  get candidateEmailInput() {
+    return this.page
+      .locator('label', { hasText: 'Email' })
+      .locator('..')
+      .locator('..')
+      .locator('input');
+  }
+
+  get candidateVacancyDropdown() {
+    return this.page
+      .locator('label', { hasText: 'Job Vacancy' })
+      .locator('..')
+      .locator('..')
+      .locator('.oxd-select-text');
+  }
+
   async open() {
-    await this.page.getByRole('link', { name: 'Recruitment' }).click();
+    await this.page
+      .getByRole('link', { name: 'Recruitment', exact: true })
+      .click();
   }
 
   async searchCandidates() {
@@ -47,6 +73,59 @@ export default class RecruitmentPage {
     );
     await this.searchButton.click();
     return responsePromise;
+  }
+
+  async openCandidate(candidateName: string) {
+    const maximumPagesToCheck = 100;
+    const maximumListRefreshes = 3;
+
+    for (let refresh = 1; refresh <= maximumListRefreshes; refresh++) {
+      for (
+        let checkedPages = 1;
+        checkedPages <= maximumPagesToCheck;
+        checkedPages++
+      ) {
+        const candidateRow = this.page
+          .getByRole('row')
+          .filter({ hasText: candidateName });
+
+        if ((await candidateRow.count()) > 0) {
+          await candidateRow.locator('button:has(.bi-eye-fill)').click();
+          await expect(this.candidateProfileHeading).toBeVisible({
+            timeout: 15_000,
+          });
+          return;
+        }
+
+        const pagination = this.page.getByRole('navigation', {
+          name: 'Pagination Navigation',
+        });
+        if ((await pagination.count()) === 0) break;
+
+        const nextPageButton = pagination.getByRole('button').last();
+        if (await nextPageButton.isDisabled()) break;
+
+        const responsePromise = this.page.waitForResponse(
+          (response) =>
+            response.request().method() === 'GET' &&
+            response.url().includes('/api/v2/recruitment/candidates'),
+        );
+        await nextPageButton.click();
+        await responsePromise;
+      }
+
+      if (refresh < maximumListRefreshes) {
+        await this.searchCandidates();
+      }
+    }
+
+    throw new Error(`Candidate "${candidateName}" was not found on any page`);
+  }
+
+  async shortlistCandidate(note: string) {
+    await this.page.getByRole('button', { name: 'Shortlist' }).click();
+    await this.page.locator('textarea').fill(note);
+    await this.page.getByRole('button', { name: 'Save' }).click();
   }
 
   async openAddCandidatePage() {
@@ -67,13 +146,20 @@ export default class RecruitmentPage {
     await this.page.getByRole('button', { name: 'Save' }).click();
   }
 
-  private async selectFirstDropdownOption(dropdownIndex: number) {
-    await this.page.locator('.oxd-select-text').nth(dropdownIndex).click();
-    await this.page
-      .getByRole('option')
-      .filter({ hasNotText: '-- Select --' })
-      .first()
-      .click();
+  private async selectDropdownOption(
+    dropdownIndex: number,
+    optionName?: string,
+  ) {
+    const dropdown = this.page.locator('.oxd-select-text').nth(dropdownIndex);
+    await dropdown.click();
+    const option = optionName
+      ? this.page.getByRole('option', { name: optionName, exact: true })
+      : this.page
+          .getByRole('option')
+          .filter({ hasNotText: '-- Select --' })
+          .first();
+    await option.click();
+    await expect(dropdown).not.toContainText('-- Select --');
   }
 
   async fillCandidateForm(firstName: string, lastName: string, email: string) {
@@ -88,9 +174,14 @@ export default class RecruitmentPage {
       .fill(email);
   }
 
-  async addCandidate(firstName: string, lastName: string, email: string) {
+  async addCandidate(
+    firstName: string,
+    lastName: string,
+    email: string,
+    vacancyName?: string,
+  ) {
     await this.fillCandidateForm(firstName, lastName, email);
-    await this.selectFirstDropdownOption(0);
+    await this.selectDropdownOption(0, vacancyName);
     await this.submitForm();
   }
 }
