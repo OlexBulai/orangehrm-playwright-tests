@@ -1,4 +1,5 @@
 import { expect, Page } from '@playwright/test';
+import { inputGroup } from './components/form-controls';
 
 export default class RecruitmentPage {
   constructor(private readonly page: Page) {}
@@ -44,11 +45,13 @@ export default class RecruitmentPage {
   }
 
   get candidateEmailInput() {
-    return this.page
-      .locator('label', { hasText: 'Email' })
-      .locator('..')
-      .locator('..')
-      .locator('input');
+    return inputGroup(this.page, 'Email').locator('input');
+  }
+
+  get candidateEmailValidationMessage() {
+    return inputGroup(this.page, 'Email').getByText(
+      'Expected format: admin@example.com',
+    );
   }
 
   get candidateVacancyDropdown() {
@@ -146,6 +149,10 @@ export default class RecruitmentPage {
     await this.page.getByRole('button', { name: 'Save' }).click();
   }
 
+  async cancelCandidateCreation() {
+    await this.page.getByRole('button', { name: 'Cancel' }).click();
+  }
+
   private async selectDropdownOption(
     dropdownIndex: number,
     optionName?: string,
@@ -163,15 +170,9 @@ export default class RecruitmentPage {
   }
 
   async fillCandidateForm(firstName: string, lastName: string, email: string) {
-    await this.page.getByPlaceholder('First Name').fill(firstName);
-    await this.page.getByPlaceholder('Last Name').fill(lastName);
-
-    await this.page
-      .locator('label', { hasText: 'Email' })
-      .locator('..')
-      .locator('..')
-      .locator('input')
-      .fill(email);
+    await this.candidateFirstNameInput.fill(firstName);
+    await this.candidateLastNameInput.fill(lastName);
+    await this.candidateEmailInput.fill(email);
   }
 
   async addCandidate(

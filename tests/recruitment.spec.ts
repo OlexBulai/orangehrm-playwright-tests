@@ -45,6 +45,40 @@ test.describe('Recruitment Page', () => {
     await expect(recruitmentPage.requiredMessages).toHaveCount(4);
   });
 
+  test('Admin cannot create candidate with invalid email', async ({ page }) => {
+    const firstName = faker.person.firstName();
+    const lastName = faker.person.lastName();
+    const invalidEmail = 'invalid-email';
+
+    await recruitmentPage.openAddCandidatePage();
+    await expect(recruitmentPage.addCandidateHeading).toBeVisible();
+
+    await recruitmentPage.fillCandidateForm(firstName, lastName, invalidEmail);
+    await recruitmentPage.submitForm();
+
+    await expect(recruitmentPage.candidateEmailValidationMessage).toBeVisible();
+    await expect(page).toHaveURL(/\/recruitment\/addCandidate\/?$/);
+    await expect(recruitmentPage.candidateProfileHeading).toBeHidden();
+  });
+
+  test('Admin can cancel candidate creation and return to Candidates list', async ({
+    page,
+  }) => {
+    const firstName = faker.person.firstName();
+    const lastName = faker.person.lastName();
+    const email = faker.internet.email({ firstName, lastName });
+
+    await recruitmentPage.openAddCandidatePage();
+    await expect(recruitmentPage.addCandidateHeading).toBeVisible();
+    await recruitmentPage.fillCandidateForm(firstName, lastName, email);
+
+    await recruitmentPage.cancelCandidateCreation();
+
+    await expect(recruitmentPage.candidatesHeading).toBeVisible();
+    await expect(page).toHaveURL(/\/recruitment\/viewCandidates\/?$/);
+    await expect(recruitmentPage.candidateProfileHeading).toBeHidden();
+  });
+
   test('Admin cannot create vacancy without required fields', async ({
     page,
   }) => {
@@ -181,4 +215,27 @@ test.describe('Recruitment Page', () => {
       }
     },
   );
+
+  test('Candidates list loads data from API', async ({ page }) => {
+    const candidatesListResponsePromise = page.waitForResponse(
+      (response) =>
+        response.request().method() === 'GET' &&
+        new URL(response.url()).pathname.endsWith(
+          '/api/v2/recruitment/candidates',
+        ),
+    );
+
+    await recruitmentPage.open();
+
+    const candidatesListResponse = await candidatesListResponsePromise;
+    expect(candidatesListResponse.status()).toBe(200);
+
+    const candidatesListBody = (await candidatesListResponse.json()) as {
+      data: unknown[];
+    };
+    expect(candidatesListBody.data).toBeDefined();
+    expect(Array.isArray(candidatesListBody.data)).toBeTruthy();
+
+    await expect(recruitmentPage.candidatesHeading).toBeVisible();
+  });
 });
