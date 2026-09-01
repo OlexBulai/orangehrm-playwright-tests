@@ -44,4 +44,69 @@ test.describe('Buzz tests', () => {
       }
     },
   );
+
+  test(
+    'Admin can edit own Buzz post',
+    { tag: '@mutation' },
+    async ({ page }) => {
+      const buzz = new BuzzPage(page);
+      const originalContent = `Original Buzz post ${faker.string.uuid()}`;
+      const updatedContent = `Updated Buzz post ${faker.string.uuid()}`;
+      let postCreated = false;
+
+      try {
+        await buzz.open();
+        await buzz.createPost(originalContent);
+        postCreated = true;
+        await expect(buzz.post(originalContent)).toBeVisible({
+          timeout: 15_000,
+        });
+
+        await buzz.editPost(originalContent, updatedContent);
+        await expect(buzz.post(updatedContent)).toBeVisible({
+          timeout: 15_000,
+        });
+        await expect(buzz.post(originalContent)).toBeHidden();
+      } finally {
+        if (postCreated) {
+          for (const content of [updatedContent, originalContent]) {
+            if (await buzz.post(content).isVisible()) {
+              await buzz.deletePost(content);
+              break;
+            }
+          }
+        }
+      }
+    },
+  );
+
+  test(
+    'Admin can cancel editing own Buzz post',
+    { tag: '@mutation' },
+    async ({ page }) => {
+      const buzz = new BuzzPage(page);
+      const originalContent = `Buzz post before cancelled edit ${faker.string.uuid()}`;
+      const updatedContent = `Unsaved Buzz post text ${faker.string.uuid()}`;
+      let postCreated = false;
+
+      try {
+        await buzz.open();
+        await buzz.createPost(originalContent);
+        postCreated = true;
+        await expect(buzz.post(originalContent)).toBeVisible({
+          timeout: 15_000,
+        });
+
+        await buzz.cancelPostEditing(originalContent, updatedContent);
+
+        await expect(buzz.editPostModal).toBeHidden();
+        await expect(buzz.post(updatedContent)).toBeHidden();
+        await expect(buzz.post(originalContent)).toBeVisible();
+      } finally {
+        if (postCreated && (await buzz.post(originalContent).isVisible())) {
+          await buzz.deletePost(originalContent);
+        }
+      }
+    },
+  );
 });

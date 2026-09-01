@@ -20,6 +20,18 @@ export default class RecruitmentPage {
     return this.page.getByRole('heading', { name: 'Candidates', exact: true });
   }
 
+  get vacanciesHeading() {
+    return this.page.getByRole('heading', { name: 'Vacancies', exact: true });
+  }
+
+  get vacancyNameInput() {
+    return inputGroup(this.page, 'Vacancy Name').locator('input');
+  }
+
+  get vacancyDescriptionInput() {
+    return inputGroup(this.page, 'Description').locator('textarea');
+  }
+
   get candidateNameInput() {
     return this.page.getByPlaceholder('Type for hints...');
   }
@@ -150,6 +162,15 @@ export default class RecruitmentPage {
   }
 
   async cancelCandidateCreation() {
+    await this.page.getByRole('button', { name: 'Cancel' }).click();
+  }
+
+  async fillVacancyForm(vacancyName: string, description: string) {
+    await this.vacancyNameInput.fill(vacancyName);
+    await this.vacancyDescriptionInput.fill(description);
+  }
+
+  async cancelVacancyCreation() {
     await this.page.getByRole('button', { name: 'Cancel' }).click();
   }
 

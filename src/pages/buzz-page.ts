@@ -15,6 +15,10 @@ export default class BuzzPage {
     return this.page.locator('.orangehrm-buzz-newsfeed-posts .orangehrm-buzz');
   }
 
+  get editPostModal() {
+    return this.page.getByRole('dialog').filter({ hasText: 'Edit Post' });
+  }
+
   post(content: string) {
     return this.page.getByText(content, { exact: true }).first();
   }
@@ -43,6 +47,23 @@ export default class BuzzPage {
       .data.post.id;
     await this.page.reload();
     return id;
+  }
+
+  async editPost(currentContent: string, updatedContent: string) {
+    await this.postCard(currentContent).getByRole('button').first().click();
+    await this.page.getByText('Edit Post', { exact: true }).click();
+
+    await this.editPostModal.getByRole('textbox').fill(updatedContent);
+    await this.editPostModal
+      .getByRole('button', { name: 'Post', exact: true })
+      .click();
+  }
+
+  async cancelPostEditing(currentContent: string, updatedContent: string) {
+    await this.postCard(currentContent).getByRole('button').first().click();
+    await this.page.getByText('Edit Post', { exact: true }).click();
+    await this.editPostModal.getByRole('textbox').fill(updatedContent);
+    await this.editPostModal.getByRole('button').first().click();
   }
 
   async deletePost(content: string) {

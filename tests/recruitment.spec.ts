@@ -92,6 +92,22 @@ test.describe('Recruitment Page', () => {
     await expect(recruitmentPage.requiredMessages).not.toHaveCount(0);
   });
 
+  test('Admin can cancel vacancy creation', async ({ page }) => {
+    const vacancyName = `QA Vacancy ${faker.string.alphanumeric(8)}`;
+    const description = faker.lorem.sentence();
+
+    await recruitmentPage.openAddVacancyPage();
+    await expect(
+      page.getByRole('heading', { name: 'Add Vacancy' }),
+    ).toBeVisible();
+    await recruitmentPage.fillVacancyForm(vacancyName, description);
+
+    await recruitmentPage.cancelVacancyCreation();
+
+    await expect(page).toHaveURL(/\/recruitment\/viewJobVacancy\/?$/);
+    await expect(recruitmentPage.vacanciesHeading).toBeVisible();
+  });
+
   test('Admin can add candidate', { tag: '@mutation' }, async ({ page }) => {
     const firstName = faker.person.firstName();
     const lastName = faker.person.lastName();
