@@ -23,6 +23,16 @@ export default class BuzzPage {
     return this.page.getByText(content, { exact: true }).first();
   }
 
+  comment(postContent: string, commentContent: string) {
+    return this.postCard(postContent)
+      .locator('.orangehrm-comment-wrapper')
+      .getByText(commentContent, { exact: true });
+  }
+
+  postLikes(postContent: string) {
+    return this.postCard(postContent).getByText(/^\d+ Likes?$/);
+  }
+
   private postCard(content: string) {
     return this.posts.filter({ hasText: content }).first();
   }
@@ -64,6 +74,42 @@ export default class BuzzPage {
     await this.page.getByText('Edit Post', { exact: true }).click();
     await this.editPostModal.getByRole('textbox').fill(updatedContent);
     await this.editPostModal.getByRole('button').first().click();
+  }
+
+  async addComment(postContent: string, commentContent: string) {
+    const postCard = this.postCard(postContent);
+    await postCard.getByText(/^\d+ Comments?$/).click();
+    const commentInput = postCard.locator('.orangehrm-buzz-comment-add input');
+    await commentInput.fill(commentContent);
+    await commentInput.press('Enter');
+  }
+
+  async deleteComment(postContent: string, commentContent: string) {
+    const comment = this.postCard(postContent)
+      .locator('.orangehrm-comment-wrapper')
+      .filter({ hasText: commentContent });
+    await comment.getByText('Delete', { exact: true }).click();
+    await this.page.getByRole('button', { name: 'Yes, Delete' }).click();
+  }
+
+  async togglePostLike(postContent: string) {
+    await this.postCard(postContent).locator('.orangehrm-heart-icon').click();
+  }
+
+  async deletePostIfVisible(...contents: string[]) {
+    if (this.page.isClosed()) return;
+
+    const openDialog = this.page.getByRole('dialog').last();
+    if (await openDialog.isVisible()) {
+      await openDialog.getByRole('button').first().click();
+    }
+
+    for (const content of contents) {
+      if (await this.post(content).isVisible()) {
+        await this.deletePost(content);
+        return;
+      }
+    }
   }
 
   async deletePost(content: string) {

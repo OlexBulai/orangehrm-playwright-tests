@@ -3,6 +3,8 @@ import BuzzPage from '../src/pages/buzz-page';
 import { faker } from '@faker-js/faker';
 
 test.describe('Buzz tests', () => {
+  test.describe.configure({ timeout: 60_000 });
+
   test('Admin can open Buzz Newsfeed', async ({ page }) => {
     const buzz = new BuzzPage(page);
 
@@ -24,23 +26,21 @@ test.describe('Buzz tests', () => {
   });
 
   test(
-    'Admin can create and delete a Buzz post',
+    'Admin can delete own Buzz post',
     { tag: '@mutation' },
     async ({ page }) => {
       const buzz = new BuzzPage(page);
       const content = `Automation post ${faker.string.uuid()}`;
-      let postId: number | undefined;
 
       try {
         await buzz.open();
-        postId = await buzz.createPost(content);
+        await buzz.createPost(content);
         await expect(buzz.post(content)).toBeVisible({ timeout: 15_000 });
+
         await buzz.deletePost(content);
-        postId = undefined;
+        await expect(buzz.post(content)).toBeHidden();
       } finally {
-        if (postId !== undefined && (await buzz.post(content).isVisible())) {
-          await buzz.deletePost(content);
-        }
+        await buzz.deletePostIfVisible(content);
       }
     },
   );
@@ -52,12 +52,10 @@ test.describe('Buzz tests', () => {
       const buzz = new BuzzPage(page);
       const originalContent = `Original Buzz post ${faker.string.uuid()}`;
       const updatedContent = `Updated Buzz post ${faker.string.uuid()}`;
-      let postCreated = false;
 
       try {
         await buzz.open();
         await buzz.createPost(originalContent);
-        postCreated = true;
         await expect(buzz.post(originalContent)).toBeVisible({
           timeout: 15_000,
         });
@@ -68,14 +66,7 @@ test.describe('Buzz tests', () => {
         });
         await expect(buzz.post(originalContent)).toBeHidden();
       } finally {
-        if (postCreated) {
-          for (const content of [updatedContent, originalContent]) {
-            if (await buzz.post(content).isVisible()) {
-              await buzz.deletePost(content);
-              break;
-            }
-          }
-        }
+        await buzz.deletePostIfVisible(updatedContent, originalContent);
       }
     },
   );
@@ -87,12 +78,10 @@ test.describe('Buzz tests', () => {
       const buzz = new BuzzPage(page);
       const originalContent = `Buzz post before cancelled edit ${faker.string.uuid()}`;
       const updatedContent = `Unsaved Buzz post text ${faker.string.uuid()}`;
-      let postCreated = false;
 
       try {
         await buzz.open();
         await buzz.createPost(originalContent);
-        postCreated = true;
         await expect(buzz.post(originalContent)).toBeVisible({
           timeout: 15_000,
         });
@@ -103,10 +92,114 @@ test.describe('Buzz tests', () => {
         await expect(buzz.post(updatedContent)).toBeHidden();
         await expect(buzz.post(originalContent)).toBeVisible();
       } finally {
-        if (postCreated && (await buzz.post(originalContent).isVisible())) {
-          await buzz.deletePost(originalContent);
-        }
+        await buzz.deletePostIfVisible(updatedContent, originalContent);
       }
     },
   );
+
+  test(
+    'Admin can add a comment to a Buzz post',
+    { tag: '@mutation' },
+    async ({ page }) => {
+      const buzz = new BuzzPage(page);
+      const postContent = `Buzz post for comment ${faker.string.uuid()}`;
+      const commentContent = `Buzz comment ${faker.string.uuid()}`;
+
+      try {
+        await buzz.open();
+        await buzz.createPost(postContent);
+        await expect(buzz.post(postContent)).toBeVisible({ timeout: 15_000 });
+
+        await buzz.addComment(postContent, commentContent);
+        await expect(buzz.comment(postContent, commentContent)).toBeVisible();
+
+        await buzz.deletePost(postContent);
+        await expect(buzz.post(postContent)).toBeHidden();
+      } finally {
+        await buzz.deletePostIfVisible(postContent);
+      }
+    },
+  );
+
+  test(
+    'Admin can delete own comment on a Buzz post',
+    { tag: '@mutation' },
+    async ({ page }) => {
+      const buzz = new BuzzPage(page);
+      const postContent = `Buzz post for comment deletion ${faker.string.uuid()}`;
+      const commentContent = `Buzz comment to delete ${faker.string.uuid()}`;
+
+      try {
+        await buzz.open();
+        await buzz.createPost(postContent);
+        await expect(buzz.post(postContent)).toBeVisible({ timeout: 15_000 });
+
+        await buzz.addComment(postContent, commentContent);
+        await expect(buzz.comment(postContent, commentContent)).toBeVisible();
+
+        await buzz.deleteComment(postContent, commentContent);
+        await expect(buzz.comment(postContent, commentContent)).toBeHidden();
+
+        await buzz.deletePost(postContent);
+        await expect(buzz.post(postContent)).toBeHidden();
+      } finally {
+        await buzz.deletePostIfVisible(postContent);
+      }
+    },
+  );
+
+  test('Admin can like a Buzz post', { tag: '@mutation' }, async ({ page }) => {
+    const buzz = new BuzzPage(page);
+    const postContent = `Buzz post to like ${faker.string.uuid()}`;
+
+    try {
+      await buzz.open();
+      await buzz.createPost(postContent);
+      await expect(buzz.post(postContent)).toBeVisible({ timeout: 15_000 });
+      await expect(buzz.postLikes(postContent)).toHaveText('0 Likes');
+
+      await buzz.togglePostLike(postContent);
+
+      await expect(buzz.postLikes(postContent)).toHaveText('1 Like');
+    } finally {
+      await buzz.deletePostIfVisible(postContent);
+    }
+  });
+
+  test(
+    'Admin can unlike a Buzz post',
+    { tag: '@mutation' },
+    async ({ page }) => {
+      const buzz = new BuzzPage(page);
+      const postContent = `Buzz post to unlike ${faker.string.uuid()}`;
+
+      try {
+        await buzz.open();
+        await buzz.createPost(postContent);
+        await expect(buzz.post(postContent)).toBeVisible({ timeout: 15_000 });
+
+        await buzz.togglePostLike(postContent);
+        await expect(buzz.postLikes(postContent)).toHaveText('1 Like');
+
+        await buzz.togglePostLike(postContent);
+
+        await expect(buzz.postLikes(postContent)).toHaveText('0 Likes');
+      } finally {
+        await buzz.deletePostIfVisible(postContent);
+      }
+    },
+  );
+
+  test('Admin cannot create an empty Buzz post', async ({ page }) => {
+    const buzz = new BuzzPage(page);
+
+    await buzz.open();
+    const postsCount = await buzz.posts.count();
+    await expect(buzz.postInput).toHaveValue('');
+
+    await page.getByRole('button', { name: 'Post', exact: true }).click();
+
+    await expect(buzz.postInput).toHaveValue('');
+    await expect(buzz.posts).toHaveCount(postsCount);
+  });
 });
