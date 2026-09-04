@@ -32,4 +32,36 @@ test.describe('Claim tests', () => {
 
     await expect(claim.requiredMessages).not.toHaveCount(0);
   });
+
+  test('Admin can reset Employee Claims filters', async ({ page }) => {
+    const claim = new ClaimPage(page);
+
+    const eventName = await claim.selectEvent();
+    await claim.selectStatus('Initiated');
+    await expect(claim.eventNameSelect).toContainText(eventName);
+    await expect(claim.statusSelect).toContainText('Initiated');
+
+    await claim.resetButton.click();
+
+    await expect(claim.eventNameSelect).toContainText('-- Select --');
+    await expect(claim.statusSelect).toContainText('-- Select --');
+    await expect(claim.includeSelect).toContainText('-- Select --');
+    await expect(claim.heading).toBeVisible();
+    await expect(page).toHaveURL(/claim\/viewAssignClaim/);
+  });
+
+  test('Admin can cancel assigning a claim', async ({ page }) => {
+    const claim = new ClaimPage(page);
+    const claimsCount = await claim.claimRows.count();
+
+    await claim.openAssignClaimForm();
+    await claim.fillAssignClaimForm('Claim assignment cancellation check');
+    await claim.cancelAssignClaim();
+
+    await expect(claim.assignClaimHeading).toBeHidden();
+    await expect(claim.searchButton).toBeVisible();
+    await expect(claim.heading).toBeVisible();
+    await expect(page).toHaveURL(/claim\/viewAssignClaim/);
+    await expect(claim.claimRows).toHaveCount(claimsCount);
+  });
 });

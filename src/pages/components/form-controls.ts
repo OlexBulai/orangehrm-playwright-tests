@@ -28,3 +28,30 @@ export async function selectDropdownOption(
   await dropdown.click();
   await page.getByRole('option', { name: option, exact: true }).click();
 }
+
+export async function selectFirstDropdownOption(page: Page, dropdown: Locator) {
+  await dropdown.click();
+  const option = page
+    .getByRole('option')
+    .filter({ hasNotText: /-- Select --|No Records Found/ })
+    .first();
+  await option.waitFor({ state: 'visible', timeout: 15_000 });
+  const optionName = (await option.innerText()).trim();
+  await option.click();
+  return optionName;
+}
+
+export async function selectFirstAutocompleteOption(
+  page: Page,
+  input: Locator,
+) {
+  await input.fill('a');
+  const option = page
+    .getByRole('option')
+    .filter({ hasNotText: /Searching\.\.\.\.|No Records Found/ })
+    .first();
+  await option.waitFor({ state: 'visible', timeout: 15_000 });
+  const optionName = (await option.innerText()).trim();
+  await option.click();
+  return optionName;
+}

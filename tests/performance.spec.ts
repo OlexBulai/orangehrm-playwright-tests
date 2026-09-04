@@ -145,4 +145,37 @@ test.describe('Performance tests', () => {
 
     await expect(performance.reviewStatusSelect).toContainText('Select');
   });
+
+  test('Admin can cancel KPI creation', async ({ page }) => {
+    const performance = new PerformancePage(page);
+    const kpiName = `Cancelled KPI ${faker.string.alphanumeric(10)}`;
+
+    await performance.openAddKpiForm();
+    await performance.fillNewKpiForm(kpiName, '1', '5');
+    await performance.cancelKpiCreation();
+
+    await expect(performance.addKpiHeading).toBeHidden();
+    await expect(page).toHaveURL(/performance\/searchKpi/);
+    await expect(performance.kpisHeading).toBeVisible();
+    await performance.expectKpiNotVisible(kpiName);
+  });
+
+  test('Admin cannot create KPI when minimum rating is greater than maximum rating', async ({
+    page,
+  }) => {
+    const performance = new PerformancePage(page);
+    const kpiName = `Invalid KPI ${faker.string.alphanumeric(10)}`;
+
+    await performance.openAddKpiForm();
+    await performance.fillNewKpiForm(kpiName, '10', '5');
+    await performance.saveEmptyForm();
+
+    await expect(performance.maximumRatingValidationMessage).toBeVisible();
+    await expect(performance.successToast).toBeHidden();
+    await expect(performance.addKpiHeading).toBeVisible();
+    await expect(page).toHaveURL(/performance\/saveKpi/);
+
+    await performance.cancelKpiCreation();
+    await performance.expectKpiNotVisible(kpiName);
+  });
 });

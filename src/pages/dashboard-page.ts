@@ -15,11 +15,19 @@ export default class DashboardPage {
     return this.page.locator('.orangehrm-quick-launch-card');
   }
 
+  quickLaunchCard(action: 'Leave List' | 'Timesheets') {
+    return this.quickLaunchCards.filter({ hasText: action });
+  }
+
   async open() {
     await this.page
       .getByRole('link', { name: 'Dashboard', exact: true })
       .click();
     await expect(this.page).toHaveURL(/dashboard\/index/);
     await expect(this.heading).toBeVisible();
+  }
+
+  async openQuickLaunch(action: 'Leave List' | 'Timesheets') {
+    await this.quickLaunchCard(action).click();
   }
 }

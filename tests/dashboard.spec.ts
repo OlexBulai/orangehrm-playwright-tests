@@ -39,4 +39,32 @@ test.describe('Dashboard tests', () => {
       await expect(page.getByText(action, { exact: true })).toBeVisible();
     }
   });
+
+  test('Admin can open Leave List from Dashboard Quick Launch', async ({
+    page,
+  }) => {
+    const dashboard = new DashboardPage(page);
+
+    await dashboard.open();
+    await dashboard.openQuickLaunch('Leave List');
+
+    await expect(page).toHaveURL(/leave\/viewLeaveList/);
+    await expect(
+      page.getByRole('heading', { name: 'Leave List', exact: true }),
+    ).toBeVisible();
+  });
+
+  test('Admin can open Timesheets from Dashboard Quick Launch', async ({
+    page,
+  }) => {
+    const dashboard = new DashboardPage(page);
+
+    await dashboard.open();
+    await dashboard.openQuickLaunch('Timesheets');
+
+    await expect(page).toHaveURL(/time\/viewEmployeeTimesheet/);
+    await expect(
+      page.getByRole('heading', { name: 'Select Employee', exact: true }),
+    ).toBeVisible();
+  });
 });

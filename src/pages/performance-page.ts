@@ -1,5 +1,9 @@
 import { expect, Page } from '@playwright/test';
-import { inputGroup, replaceInputValue } from './components/form-controls';
+import {
+  inputGroup,
+  replaceInputValue,
+  selectFirstDropdownOption,
+} from './components/form-controls';
 
 export default class PerformancePage {
   constructor(private readonly page: Page) {}
@@ -25,6 +29,12 @@ export default class PerformancePage {
     });
   }
 
+  get addKpiHeading() {
+    return this.page.getByText('Add Key Performance Indicator', {
+      exact: true,
+    });
+  }
+
   get employeeNameInput() {
     return this.page.getByPlaceholder('Type for hints...');
   }
@@ -35,6 +45,17 @@ export default class PerformancePage {
 
   get requiredMessages() {
     return this.page.locator('.oxd-input-field-error-message');
+  }
+
+  get maximumRatingValidationMessage() {
+    return this.page.getByText(
+      'Maximum Rating should be greater than Minimum Rating',
+      { exact: true },
+    );
+  }
+
+  get successToast() {
+    return this.page.locator('.oxd-toast--success');
   }
 
   get reviewStatusSelect() {
@@ -61,9 +82,7 @@ export default class PerformancePage {
     await this.openKpis();
     await this.page.getByRole('button', { name: 'Add' }).click();
     await expect(this.page).toHaveURL(/performance\/saveKpi/);
-    await expect(
-      this.page.getByText('Add Key Performance Indicator', { exact: true }),
-    ).toBeVisible();
+    await expect(this.addKpiHeading).toBeVisible();
     await expect(this.page.locator('.oxd-form-loader')).toBeHidden({
       timeout: 30_000,
     });
@@ -114,8 +133,7 @@ export default class PerformancePage {
       const jobTitleSelect = inputGroup(this.page, 'Job Title').locator(
         '.oxd-select-text',
       );
-      await jobTitleSelect.click();
-      await this.page.getByRole('option').nth(1).click();
+      await selectFirstDropdownOption(this.page, jobTitleSelect);
       await expect(jobTitleSelect).not.toContainText('-- Select --');
     }
     await replaceInputValue(
@@ -140,6 +158,22 @@ export default class PerformancePage {
     const response = await responsePromise;
     expect(response.status()).toBe(200);
     return ((await response.json()) as { data: { id: number } }).data.id;
+  }
+
+  async fillNewKpiForm(
+    name: string,
+    minimumRating: string,
+    maximumRating: string,
+  ) {
+    await this.fillKpiForm(name, minimumRating, maximumRating, true);
+  }
+
+  async cancelKpiCreation() {
+    await this.page.getByRole('button', { name: 'Cancel' }).click();
+  }
+
+  async expectKpiNotVisible(name: string) {
+    await expect(this.kpiRow(name)).toBeHidden();
   }
 
   async editKpi(
