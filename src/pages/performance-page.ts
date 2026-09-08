@@ -35,6 +35,67 @@ export default class PerformancePage {
     });
   }
 
+  get editKpiHeading() {
+    return this.page.getByText('Edit Key Performance Indicator', {
+      exact: true,
+    });
+  }
+
+  get kpiNameInput() {
+    return inputGroup(this.page, 'Key Performance Indicator').locator('input');
+  }
+
+  get kpiNameRequiredMessage() {
+    return inputGroup(this.page, 'Key Performance Indicator').getByText(
+      'Required',
+      { exact: true },
+    );
+  }
+
+  get kpiJobTitleSelect() {
+    return inputGroup(this.page, 'Job Title').locator('.oxd-select-text');
+  }
+
+  async openExistingKpi() {
+    await this.page
+      .locator('.oxd-table-body')
+      .locator('button:has(i.bi-pencil-fill)')
+      .first()
+      .click();
+    await expect(this.editKpiHeading).toBeVisible();
+    await expect(this.kpiNameInput).not.toHaveValue('');
+    await expect(this.kpiJobTitleSelect).not.toHaveText('-- Select --');
+  }
+
+  async kpiFormValues() {
+    return {
+      name: await this.kpiNameInput.inputValue(),
+      jobTitle: await this.kpiJobTitleSelect.innerText(),
+      minimumRating: await inputGroup(this.page, 'Minimum Rating')
+        .locator('input')
+        .inputValue(),
+      maximumRating: await inputGroup(this.page, 'Maximum Rating')
+        .locator('input')
+        .inputValue(),
+      makeDefault: await this.page.getByRole('checkbox').isChecked(),
+    };
+  }
+
+  async reopenKpi(name: string, jobTitle: string) {
+    await this.kpiRow(name)
+      .filter({
+        has: this.page.getByRole('cell', {
+          name: jobTitle.trim(),
+          exact: true,
+        }),
+      })
+      .locator('button:has(i.bi-pencil-fill)')
+      .click();
+    await expect(this.editKpiHeading).toBeVisible();
+    await expect(this.kpiNameInput).not.toHaveValue('');
+    await expect(this.kpiJobTitleSelect).not.toHaveText('-- Select --');
+  }
+
   get employeeNameInput() {
     return this.page.getByPlaceholder('Type for hints...');
   }
@@ -113,7 +174,7 @@ export default class PerformancePage {
     ).toBeVisible();
   }
 
-  async saveEmptyForm() {
+  async saveForm() {
     await this.page.getByRole('button', { name: 'Save' }).click();
   }
 
@@ -168,7 +229,7 @@ export default class PerformancePage {
     await this.fillKpiForm(name, minimumRating, maximumRating, true);
   }
 
-  async cancelKpiCreation() {
+  async cancelKpiForm() {
     await this.page.getByRole('button', { name: 'Cancel' }).click();
   }
 

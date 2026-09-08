@@ -15,7 +15,9 @@ export default class DashboardPage {
     return this.page.locator('.orangehrm-quick-launch-card');
   }
 
-  quickLaunchCard(action: 'Leave List' | 'Timesheets') {
+  quickLaunchCard(
+    action: 'Leave List' | 'Timesheets' | 'Assign Leave' | 'My Leave',
+  ) {
     return this.quickLaunchCards.filter({ hasText: action });
   }
 
@@ -27,7 +29,9 @@ export default class DashboardPage {
     await expect(this.heading).toBeVisible();
   }
 
-  async openQuickLaunch(action: 'Leave List' | 'Timesheets') {
+  async openQuickLaunch(
+    action: 'Leave List' | 'Timesheets' | 'Assign Leave' | 'My Leave',
+  ) {
     await this.quickLaunchCard(action).click();
   }
 }

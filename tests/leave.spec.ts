@@ -37,12 +37,26 @@ test.describe('Leave tests', () => {
 
   test('Admin can reset Leave List filters', async ({ page }) => {
     const leave = new LeavePage(page);
-    const dateInputs = page.locator('.oxd-date-input input');
+    await expect(leave.fromDateInput).not.toHaveValue('');
+    await expect(leave.toDateInput).not.toHaveValue('');
+    const defaultFromDate = await leave.fromDateInput.inputValue();
+    const defaultToDate = await leave.toDateInput.inputValue();
+    const defaultLeaveType = await leave.leaveTypeSelect.innerText();
+    await expect(leave.leaveStatusTags).toHaveText(['Pending Approval']);
 
-    await dateInputs.first().fill('2000-01-01');
+    const { leaveType, employeeName } = await leave.fillListFilters();
+    await expect(leave.fromDateInput).toHaveValue('2000-01-01');
+    await expect(leave.leaveTypeSelect).toHaveText(leaveType);
+    await expect(leave.employeeNameInput).toHaveValue(employeeName);
     await leave.resetButton.click();
 
-    await expect(dateInputs.first()).not.toHaveValue('2000-01-01');
+    await expect(leave.fromDateInput).toHaveValue(defaultFromDate);
+    await expect(leave.toDateInput).toHaveValue(defaultToDate);
+    await expect(leave.leaveTypeSelect).toHaveText(defaultLeaveType);
+    await expect(leave.employeeNameInput).toHaveValue('');
+    await expect(leave.leaveStatusTags).toHaveText(['Pending Approval']);
+    await expect(leave.heading).toBeVisible();
+    await expect(page).toHaveURL(/leave\/viewLeaveList/);
   });
 
   test('Admin cannot assign leave without required fields', async ({

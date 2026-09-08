@@ -64,6 +64,37 @@ export default class ClaimPage {
     return responsePromise;
   }
 
+  async availableClaimStatuses() {
+    await expect(this.claimRows.first()).toBeVisible();
+    const headers = await this.page.getByRole('columnheader').allInnerTexts();
+    const statusIndex = headers.findIndex(
+      (header) => header.trim() === 'Status',
+    );
+    expect(statusIndex).toBeGreaterThanOrEqual(0);
+    const statuses: string[] = [];
+    for (const row of await this.claimRows.all()) {
+      statuses.push(
+        (await row.getByRole('cell').nth(statusIndex).innerText()).trim(),
+      );
+    }
+    return { statuses: [...new Set(statuses)], statusIndex };
+  }
+
+  async searchThroughUi() {
+    await Promise.all([
+      this.page.locator('.oxd-loading-spinner').waitFor({ state: 'visible' }),
+      this.searchButton.click(),
+    ]);
+    await expect(this.page.locator('.oxd-loading-spinner')).toBeHidden();
+  }
+
+  async expectClaimsWithStatus(status: string, statusIndex: number) {
+    await expect(this.claimRows.first()).toBeVisible();
+    for (const row of await this.claimRows.all()) {
+      await expect(row.getByRole('cell').nth(statusIndex)).toHaveText(status);
+    }
+  }
+
   async openAssignClaimForm() {
     await this.page.getByRole('button', { name: 'Assign Claim' }).click();
     await expect(this.assignClaimHeading).toBeVisible();

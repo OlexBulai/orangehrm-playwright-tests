@@ -33,6 +33,24 @@ test.describe('Claim tests', () => {
     await expect(claim.requiredMessages).not.toHaveCount(0);
   });
 
+  test('Admin can search Employee Claims by Status', async ({ page }) => {
+    const claim = new ClaimPage(page);
+    const { statuses, statusIndex } = await claim.availableClaimStatuses();
+    expect(statuses.length).toBeGreaterThan(0);
+
+    for (const status of statuses) {
+      await test.step(`Search claims with status ${status}`, async () => {
+        await claim.selectStatus(status);
+        await expect(claim.statusSelect).toHaveText(status);
+        await claim.searchThroughUi();
+
+        await claim.expectClaimsWithStatus(status, statusIndex);
+        await expect(claim.heading).toBeVisible();
+        await expect(page).toHaveURL(/claim\/viewAssignClaim/);
+      });
+    }
+  });
+
   test('Admin can reset Employee Claims filters', async ({ page }) => {
     const claim = new ClaimPage(page);
 

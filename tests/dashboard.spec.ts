@@ -2,6 +2,33 @@ import { test, expect } from './fixtures/shared/authenticated.fixture';
 import DashboardPage from '../src/pages/dashboard-page';
 
 test.describe('Dashboard tests', () => {
+  for (const { action, url, heading } of [
+    {
+      action: 'Assign Leave',
+      url: /leave\/assignLeave/,
+      heading: 'Assign Leave',
+    },
+    {
+      action: 'My Leave',
+      url: /leave\/viewMyLeaveList/,
+      heading: 'My Leave List',
+    },
+  ] as const) {
+    test(`Admin can open ${action} from Dashboard Quick Launch`, async ({
+      page,
+    }) => {
+      const dashboard = new DashboardPage(page);
+      await dashboard.open();
+      await dashboard.openQuickLaunch(action);
+
+      await expect(page).toHaveURL(url);
+      await expect(
+        page.getByRole('heading', { name: heading, exact: true }),
+      ).toBeVisible();
+      await expect(dashboard.heading).toBeHidden();
+    });
+  }
+
   test('Admin can open Dashboard', async ({ page }) => {
     const dashboard = new DashboardPage(page);
 

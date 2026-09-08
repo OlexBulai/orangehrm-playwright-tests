@@ -32,6 +32,23 @@ test.describe('Time Page', () => {
     await expect(timePage.timesheetForText).toBeVisible();
   });
 
+  test('Admin can clear Employee Name in Employee Timesheets', async ({
+    page,
+  }) => {
+    await timePage.open();
+    const employeeName = await timePage.selectAvailableEmployee();
+    await expect(timePage.employeeNameInput).toHaveValue(employeeName);
+
+    // Employee Timesheets has no Reset button; clear the employee selection.
+    await timePage.clearEmployeeSearch();
+
+    await expect(timePage.employeeNameInput).toHaveValue('');
+    await expect(timePage.selectEmployeeHeading).toBeVisible();
+    await expect(timePage.timesheetsHeading).toBeVisible();
+    await expect(timePage.viewButton).toBeVisible();
+    await expect(page).toHaveURL(/time\/viewEmployeeTimesheet/);
+  });
+
   test('Admin can navigate employee timesheet period', async () => {
     await timePage.open();
     await timePage.selectAvailableEmployee();

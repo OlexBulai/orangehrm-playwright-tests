@@ -50,6 +50,23 @@ export default class LeavePage {
     return inputGroup(this.page, 'To Date').locator('input');
   }
 
+  get leaveStatusTags() {
+    return inputGroup(this.page, 'Show Leave with Status').locator('.oxd-chip');
+  }
+
+  async fillListFilters() {
+    await replaceInputValue(this.fromDateInput, '2000-01-01');
+    const leaveType = await selectFirstDropdownOption(
+      this.page,
+      this.leaveTypeSelect,
+    );
+    const employeeName = await selectFirstAutocompleteOption(
+      this.page,
+      this.employeeNameInput,
+    );
+    return { leaveType, employeeName };
+  }
+
   get invalidDateMessage() {
     return this.page.getByText('To date should be after from date', {
       exact: true,

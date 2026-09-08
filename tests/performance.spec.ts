@@ -40,7 +40,7 @@ test.describe('Performance tests', () => {
     const performance = new PerformancePage(page);
 
     await performance.openAddKpiForm();
-    await performance.saveEmptyForm();
+    await performance.saveForm();
 
     await expect(performance.requiredMessages).not.toHaveCount(0);
   });
@@ -49,7 +49,7 @@ test.describe('Performance tests', () => {
     const performance = new PerformancePage(page);
 
     await performance.openAddTrackerForm();
-    await performance.saveEmptyForm();
+    await performance.saveForm();
 
     await expect(performance.requiredMessages).not.toHaveCount(0);
   });
@@ -60,7 +60,7 @@ test.describe('Performance tests', () => {
     const performance = new PerformancePage(page);
 
     await performance.openAddReviewForm();
-    await performance.saveEmptyForm();
+    await performance.saveForm();
 
     await expect(performance.requiredMessages).not.toHaveCount(0);
   });
@@ -152,12 +152,48 @@ test.describe('Performance tests', () => {
 
     await performance.openAddKpiForm();
     await performance.fillNewKpiForm(kpiName, '1', '5');
-    await performance.cancelKpiCreation();
+    await performance.cancelKpiForm();
 
     await expect(performance.addKpiHeading).toBeHidden();
     await expect(page).toHaveURL(/performance\/searchKpi/);
     await expect(performance.kpisHeading).toBeVisible();
     await performance.expectKpiNotVisible(kpiName);
+  });
+
+  test('Admin can cancel editing a KPI', async ({ page }) => {
+    const performance = new PerformancePage(page);
+    await performance.openKpis();
+    await performance.openExistingKpi();
+    const originalUrl = page.url();
+    const originalValues = await performance.kpiFormValues();
+    const updatedName = `Cancelled edit ${faker.string.alphanumeric(10)}`;
+
+    await performance.kpiNameInput.fill(updatedName);
+    await expect(performance.kpiNameInput).toHaveValue(updatedName);
+    await performance.cancelKpiForm();
+
+    await expect(performance.editKpiHeading).toBeHidden();
+    await expect(performance.kpisHeading).toBeVisible();
+    await expect(page).toHaveURL(/performance\/searchKpi/);
+    await performance.reopenKpi(originalValues.name, originalValues.jobTitle);
+    await expect(page).toHaveURL(originalUrl);
+    expect(await performance.kpiFormValues()).toEqual(originalValues);
+  });
+
+  test('Admin cannot create KPI with empty name', async ({ page }) => {
+    const performance = new PerformancePage(page);
+    await performance.openAddKpiForm();
+    await performance.fillNewKpiForm('', '1', '5');
+    await expect(performance.kpiNameInput).toHaveValue('');
+    await expect(performance.kpiJobTitleSelect).not.toHaveText('-- Select --');
+
+    await performance.saveForm();
+
+    await expect(performance.kpiNameRequiredMessage).toBeVisible();
+    await expect(performance.requiredMessages).toHaveCount(1);
+    await expect(performance.successToast).toBeHidden();
+    await expect(performance.addKpiHeading).toBeVisible();
+    await expect(page).toHaveURL(/performance\/saveKpi/);
   });
 
   test('Admin cannot create KPI when minimum rating is greater than maximum rating', async ({
@@ -168,14 +204,14 @@ test.describe('Performance tests', () => {
 
     await performance.openAddKpiForm();
     await performance.fillNewKpiForm(kpiName, '10', '5');
-    await performance.saveEmptyForm();
+    await performance.saveForm();
 
     await expect(performance.maximumRatingValidationMessage).toBeVisible();
     await expect(performance.successToast).toBeHidden();
     await expect(performance.addKpiHeading).toBeVisible();
     await expect(page).toHaveURL(/performance\/saveKpi/);
 
-    await performance.cancelKpiCreation();
+    await performance.cancelKpiForm();
     await performance.expectKpiNotVisible(kpiName);
   });
 });

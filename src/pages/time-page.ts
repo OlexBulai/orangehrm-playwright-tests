@@ -13,6 +13,22 @@ export default class TimePage {
     return this.page.getByText('Required');
   }
 
+  get employeeNameInput() {
+    return this.page.getByPlaceholder('Type for hints...');
+  }
+
+  get selectEmployeeHeading() {
+    return this.page.getByRole('heading', {
+      name: 'Select Employee',
+      exact: true,
+    });
+  }
+
+  async clearEmployeeSearch() {
+    await this.employeeNameInput.clear();
+    await this.employeeNameInput.press('Tab');
+  }
+
   async open() {
     await this.page.getByRole('link', { name: 'Time' }).click();
 
