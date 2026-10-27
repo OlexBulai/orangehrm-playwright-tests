@@ -16,7 +16,7 @@ export default class DashboardPage {
   }
 
   quickLaunchCard(
-    action: 'Leave List' | 'Timesheets' | 'Assign Leave' | 'My Leave',
+    action: 'Leave List' | 'Timesheets' | 'Assign Leave' | 'My Leave'| 'Apply Leave',
   ) {
     return this.quickLaunchCards.filter({ hasText: action });
   }
@@ -30,7 +30,7 @@ export default class DashboardPage {
   }
 
   async openQuickLaunch(
-    action: 'Leave List' | 'Timesheets' | 'Assign Leave' | 'My Leave',
+    action: 'Leave List' | 'Timesheets' | 'Assign Leave' | 'My Leave'| 'Apply Leave',
   ) {
     await this.quickLaunchCard(action).click();
   }

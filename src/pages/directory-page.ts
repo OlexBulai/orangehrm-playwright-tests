@@ -30,6 +30,7 @@ export default class DirectoryPage {
   }
   async fillEmployeeName(employeeName: string) {
     await this.employeeNameInput.fill(employeeName);
+    await this.employeeNameInput.blur();
   }
   async selectFirstJobTitle() {
     await this.jobTitleSelect.click();

@@ -37,4 +37,17 @@ test.describe('Directory Page', () => {
 
     await expect(directoryPage.jobTitleSelect).toContainText('Select');
   });
+  test('Admin can reset the employee name in Directory', async () => {
+    await directoryPage.open();
+    await directoryPage.fillEmployeeName('TestEmployee');
+    await expect(directoryPage.employeeNameInput).toHaveValue('TestEmployee');
+
+    await directoryPage.resetButton.click();
+
+    await expect(directoryPage.employeeNameInput).toHaveValue('');
+  });
+
+
+    
+  
 });

@@ -94,4 +94,22 @@ test.describe('Dashboard tests', () => {
       page.getByRole('heading', { name: 'Select Employee', exact: true }),
     ).toBeVisible();
   });
+  
+  test('Admin can open Apply Leave from Dashboard Quick Launch.', async ({
+    page,
+  }) => {
+    const dashboard = new DashboardPage(page);
+    
+    await dashboard.open();
+    await dashboard.openQuickLaunch('Apply Leave');
+
+    await expect(page).toHaveURL(/leave\/applyLeave/);
+    await expect(
+      page.getByRole('heading', { name: 'Apply Leave', exact: true }),
+    ).toBeVisible();
+
+    
+  });
+
+
 });

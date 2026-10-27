@@ -88,4 +88,78 @@ test.describe('OrangeHRM auth tests', { tag: '@auth' }, () => {
     await expect(page).toHaveURL(/auth\/login/);
     await expect(page.locator(loginPage.loginButton)).toBeVisible();
   });
+
+  test('User enters username and empty password', async ({ page }) => {
+    const loginPage = new LoginPage(page);
+    await loginPage.fillUsername(usernameLogin);
+
+    await loginPage.clickLoginButton();
+
+    await expect(page.locator(loginPage.passwordInput)).toHaveClass(
+      /oxd-input--error/,
+    );
+    await expect(page.getByText('Required')).toBeVisible();
+    await expect(page).toHaveURL(/auth\/login/);
+  });
+
+  test('User enters password and empty username', async ({ page }) => {
+    const loginPage = new LoginPage(page);
+    await loginPage.fillPassword(passwordLogin);
+
+    await loginPage.clickLoginButton();
+
+    await expect(page.locator(loginPage.usernameInput)).toHaveClass(
+      /oxd-input--error/,
+    );
+    await expect(page.getByText('Required')).toBeVisible();
+    await expect(page).toHaveURL(/auth\/login/);
+  });
+  test('Check that the password error has disappeared', async ({ page }) => {
+    const loginPage = new LoginPage(page);
+    await loginPage.fillUsername(usernameLogin);
+    await loginPage.clickLoginButton();
+
+    await expect(page.locator(loginPage.passwordInput)).toHaveClass(
+      /oxd-input--error/,
+    );
+    await expect(page.getByText('Required')).toBeVisible();
+    await expect(page).toHaveURL(/auth\/login/);
+
+    await loginPage.fillPassword(passwordLogin);
+
+    await expect(page.locator(loginPage.passwordInput)).not.toHaveClass(
+      /oxd-input--error/,
+    );
+    await expect(page.getByText('Required')).not.toBeVisible();
+  });
+  test('Login rejects a valid username with an incorrect password', async ({
+    page,
+  }) => {
+    const loginPage = new LoginPage(page);
+    await loginPage.fillUsername(usernameLogin);
+    await loginPage.fillPassword('WrongPassword123!');
+    await loginPage.clickLoginButton();
+
+    await expect(page.getByText('Invalid credentials')).toBeVisible();
+  });
+  test('Username validation disappears after entering a username', async ({
+    page,
+  }) => {
+    const loginPage = new LoginPage(page);
+    await loginPage.fillPassword(passwordLogin);
+
+    await loginPage.clickLoginButton();
+
+     await expect(page.locator(loginPage.usernameInput)).toHaveClass(
+      /oxd-input--error/,
+    );
+    await expect(page.getByText('Required')).toBeVisible();
+
+    await loginPage.fillUsername(usernameLogin);
+
+    await expect(page.locator(loginPage.usernameInput)).not.toHaveClass(
+      /oxd-input--error/,
+    );
+    await expect(page.getByText('Required')).not.toBeVisible();
+  });
 });
